@@ -1,34 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js Boilerplate
 
-## Getting Started
+이 보일러플레이트는 다음 기술들을 사용하여 간단한 CRUD 애플리케이션을 구축합니다:
 
-First, run the development server:
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React-Query](https://react-query.tanstack.com/)
+- [Recoil](https://recoiljs.org/)
+- [Prisma](https://www.prisma.io/)
+- [React Hook Form](https://react-hook-form.com/)
+- [React-Table](https://react-table.tanstack.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+
+## 살펴 보기
+
+CodeSandbox 에서도 체험해 볼 수 있습니다: [CodeSandbox](https://codesandbox.io/p/github/ATG-AMS/ams-next-boilerplate/main?layout=%257B%2522sidebarPanel%2522%253A%2522EXPLORER%2522%252C%2522rootPanelGroup%2522%253A%257B%2522direction%2522%253A%2522horizontal%2522%252C%2522contentType%2522%253A%2522UNKNOWN%2522%252C%2522type%2522%253A%2522PANEL_GROUP%2522%252C%2522id%2522%253A%2522ROOT_LAYOUT%2522%252C%2522panels%2522%253A%255B%257B%2522type%2522%253A%2522PANEL_GROUP%2522%252C%2522contentType%2522%253A%2522UNKNOWN%2522%252C%2522direction%2522%253A%2522vertical%2522%252C%2522id%2522%253A%2522clmm6s76o000i3p6e1ektveg6%2522%252C%2522sizes%2522%253A%255B70%252C30%255D%252C%2522panels%2522%253A%255B%257B%2522type%2522%253A%2522PANEL_GROUP%2522%252C%2522contentType%2522%253A%2522EDITOR%2522%252C%2522direction%2522%253A%2522horizontal%2522%252C%2522id%2522%253A%2522EDITOR%2522%252C%2522panels%2522%253A%255B%257B%2522type%2522%253A%2522PANEL%2522%252C%2522contentType%2522%253A%2522EDITOR%2522%252C%2522id%2522%253A%2522clmm6s76n000e3p6e4hob719l%2522%257D%255D%252C%2522sizes%2522%253A%255B100%255D%257D%252C%257B%2522type%2522%253A%2522PANEL_GROUP%2522%252C%2522contentType%2522%253A%2522SHELLS%2522%252C%2522direction%2522%253A%2522horizontal%2522%252C%2522id%2522%253A%2522SHELLS%2522%252C%2522panels%2522%253A%255B%257B%2522type%2522%253A%2522PANEL%2522%252C%2522contentType%2522%253A%2522SHELLS%2522%252C%2522id%2522%253A%2522clmm6s76o000g3p6exqs9hio9%2522%257D%255D%252C%2522sizes%2522%253A%255B100%255D%257D%255D%257D%252C%257B%2522type%2522%253A%2522PANEL_GROUP%2522%252C%2522contentType%2522%253A%2522DEVTOOLS%2522%252C%2522direction%2522%253A%2522vertical%2522%252C%2522id%2522%253A%2522DEVTOOLS%2522%252C%2522panels%2522%253A%255B%257B%2522type%2522%253A%2522PANEL%2522%252C%2522contentType%2522%253A%2522DEVTOOLS%2522%252C%2522id%2522%253A%2522clmm6s76o000h3p6el2jn4kwa%2522%257D%255D%252C%2522sizes%2522%253A%255B100%255D%257D%255D%252C%2522sizes%2522%253A%255B50%252C50%255D%257D%252C%2522tabbedPanels%2522%253A%257B%2522clmm6s76n000e3p6e4hob719l%2522%253A%257B%2522id%2522%253A%2522clmm6s76n000e3p6e4hob719l%2522%252C%2522activeTabId%2522%253A%2522clmm6wkq801cn3p6eas1uw1tv%2522%252C%2522tabs%2522%253A%255B%257B%2522id%2522%253A%2522clmm6s76n000d3p6eva8rwu2v%2522%252C%2522mode%2522%253A%2522permanent%2522%252C%2522type%2522%253A%2522FILE%2522%252C%2522filepath%2522%253A%2522%252FREADME.md%2522%257D%252C%257B%2522type%2522%253A%2522FILE%2522%252C%2522filepath%2522%253A%2522%252F.codesandbox%252Ftasks.json%2522%252C%2522id%2522%253A%2522clmm6vzk6015s3p6ed8gk56uc%2522%252C%2522mode%2522%253A%2522permanent%2522%257D%252C%257B%2522type%2522%253A%2522FILE%2522%252C%2522filepath%2522%253A%2522%252F.env%2522%252C%2522id%2522%253A%2522clmm6wkq801cn3p6eas1uw1tv%2522%252C%2522mode%2522%253A%2522permanent%2522%252C%2522state%2522%253A%2522IDLE%2522%257D%252C%257B%2522type%2522%253A%2522FILE%2522%252C%2522filepath%2522%253A%2522%252Fpackage.json%2522%252C%2522id%2522%253A%2522clmm6zpc602gu3p6ef18g0q5a%2522%252C%2522mode%2522%253A%2522temporary%2522%257D%255D%257D%252C%2522clmm6s76o000h3p6el2jn4kwa%2522%253A%257B%2522id%2522%253A%2522clmm6s76o000h3p6el2jn4kwa%2522%252C%2522activeTabId%2522%253A%2522clmm6zais02b03p6e5nzqa0ey%2522%252C%2522tabs%2522%253A%255B%257B%2522type%2522%253A%2522TASK_PORT%2522%252C%2522taskId%2522%253A%2522dev%2522%252C%2522port%2522%253A3000%252C%2522id%2522%253A%2522clmm6sqq800li3p6eqbkisnop%2522%252C%2522mode%2522%253A%2522permanent%2522%252C%2522path%2522%253A%2522%252F%2522%257D%252C%257B%2522type%2522%253A%2522UNASSIGNED_PORT%2522%252C%2522port%2522%253A3000%252C%2522id%2522%253A%2522clmm6zais02b03p6e5nzqa0ey%2522%252C%2522mode%2522%253A%2522permanent%2522%252C%2522path%2522%253A%2522%252F%2522%257D%255D%257D%252C%2522clmm6s76o000g3p6exqs9hio9%2522%253A%257B%2522id%2522%253A%2522clmm6s76o000g3p6exqs9hio9%2522%252C%2522activeTabId%2522%253A%2522clmm6s76o000f3p6eg1u1vozy%2522%252C%2522tabs%2522%253A%255B%257B%2522id%2522%253A%2522clmm6s76o000f3p6eg1u1vozy%2522%252C%2522mode%2522%253A%2522permanent%2522%252C%2522type%2522%253A%2522TERMINAL%2522%252C%2522shellId%2522%253A%2522clmm6s7de0020e6ep1jo4h0ca%2522%257D%252C%257B%2522type%2522%253A%2522TASK_LOG%2522%252C%2522taskId%2522%253A%2522dev%2522%252C%2522id%2522%253A%2522clmm6sol900hz3p6e31pe1dcl%2522%252C%2522mode%2522%253A%2522permanent%2522%257D%255D%257D%257D%252C%2522showDevtools%2522%253Atrue%252C%2522showShells%2522%253Atrue%252C%2522showSidebar%2522%253Atrue%252C%2522sidebarPanelSize%2522%253A15%257D)
+
+> :warning:
+> **CRUD**가 제대로 작동하지 않는다면 `.env` 에서 `NEXT_PUBLIC_API_URI`를 환경에 맞게 수정해주세요.
+
+## 설치 방법
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+git clone https://github.com/ATG-AMS/ams-next-boilerplate.git
+cd ams-next-boilerplate
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 사용 방법
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Prisma의 데이터베이스 설정을 prisma/.env에서 확인하고 필요한 설정을 조정하세요.
+2. 데이터베이스 마이그레이션:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+    ```bash
+    npx prisma migrate dev --name="<마이그레이션 명>"
+    ```
 
-## Learn More
+3. Next.js 개발 서버 실행:
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    npm run dev
+    # 또는
+    npm run turbo
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 기능
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- CRUD 연산: 간단한 CRUD 작업을 위한 API 엔드포인트 및 프론트엔드 구성.
+- State Management: Recoil을 사용한 상태 관리.
+- Data Fetching: React-Query를 사용하여 데이터 가져오기 및 캐싱.
+- Database Integration: Prisma를 사용하여 데이터베이스 연동.
+- UI Components: @shadcn/ui 컴포넌트를 사용하여 모던한 UI 구성.
 
-## Deploy on Vercel
+## 기여
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+프로젝트에 기여하고 싶으시면, PR을 열어 주세요!
