@@ -58,7 +58,7 @@ export default function ModifyDialog({ user }: Props) {
           size={20}
         />
       </DialogTrigger>
-      <DialogContent className="bg-white">
+      <DialogContent className="bg-white dark:bg-inherit">
         <DialogHeader>
           <DialogTitle>사용자 정보 수정</DialogTitle>
         </DialogHeader>
