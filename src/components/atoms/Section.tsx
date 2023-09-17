@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils.server";
+import { cn } from "@/lib/utils";
 
 type Props = {
   as?: keyof JSX.IntrinsicElements;

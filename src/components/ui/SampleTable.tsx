@@ -120,16 +120,22 @@ export function SampleTable({ initialData }: Props) {
 
   // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
   function renderDataStatusMessage(
+    isFetching: boolean,
     isLoading: boolean,
     isError: boolean,
     rows: User[],
   ): string | null {
-    if (isLoading) return LOADING_MESSAGE;
+    if (isFetching || isLoading) return LOADING_MESSAGE;
     if (isError) return ERROR_MESSAGE;
     if (rows.length === 0) return NO_DATA_MESSAGE;
     return null;
   }
-  const statusMessage = renderDataStatusMessage(isLoading, isError, data.rows);
+  const statusMessage = renderDataStatusMessage(
+    isFetching,
+    isLoading,
+    isError,
+    data.rows,
+  );
 
   if (statusMessage || data.rows.length === 0)
     return (
