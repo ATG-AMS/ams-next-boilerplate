@@ -1,17 +1,21 @@
 import { SampleTable } from "@/components/ui/SampleTable";
-import { fetchS } from "@/lib/utils";
+import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 
 export default async function Home() {
-  const sampleTableData = await fetchS({
-    endpoint: "users",
-    queryParams: {
-      page: 0,
-      limit: 10,
-      sort: "createdAt",
-      order: "desc",
-    },
-  });
+  const sampleTableData = await prisma.user
+    .findMany({
+      skip: 0,
+      take: 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+    .then(async (users) => {
+      const count = await prisma.user.count();
+      return { rows: users, count };
+    });
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
