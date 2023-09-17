@@ -1,6 +1,15 @@
-"use client";
+"use client"; // React Client 컴포넌트 임을 명시
 
+/** 필수 React 훅과 아이콘 라이브러리 */
 import React, { useEffect } from "react";
+import {
+  RxDoubleArrowLeft,
+  RxDoubleArrowRight,
+  RxChevronLeft,
+  RxChevronRight,
+} from "react-icons/rx";
+
+/** UI 컴포넌트들 */
 import { Button } from "@/components/atoms/Button";
 import {
   Table,
@@ -17,7 +26,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/atoms/Select";
+import { FunctionToolbar } from "@/components/ui/FunctionButtons";
+
+/** 데이터를 가져오는데 사용되는 react-query 훅 */
 import { useQuery } from "@tanstack/react-query";
+
+/** Headless react-table 관련 라이브러리 */
 import {
   Table as TableType,
   flexRender,
@@ -25,18 +39,18 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  RxDoubleArrowLeft,
-  RxDoubleArrowRight,
-  RxChevronLeft,
-  RxChevronRight,
-} from "react-icons/rx";
-import { User } from "@prisma/client";
-import { defaultColumn } from "@/components/ui/SampleColumnDef";
-import { useRecoilState } from "recoil";
-import { sampleTableState } from "../SampleTableState";
-import { FunctionToolbar } from "./FunctionButtons";
 
+/** Prisma의 User 모델 */
+import { User } from "@prisma/client";
+
+/** 사전 정의한 컬럼 설정 정보 */
+import { defaultColumn } from "@/components/ui/SampleColumnDef";
+
+/** Recoil 상태 관리 훅과 정의한 atom */
+import { useRecoilState } from "recoil";
+import { sampleTableState } from "@/components/store/SampleTableState";
+
+// Props와 UserData 타입을 정의
 type Props = {
   initialData?: {
     rows: User[];
@@ -48,31 +62,25 @@ type UserData = {
   count: number;
 };
 
+// SampleTable 컴포넌트를 정의
 export function SampleTable({ initialData }: Props) {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { rows, pageSize, pageIndex } = tableState;
-  const {
-    data,
-    isError,
-    isLoading,
-    isFetching,
-    isFetched,
-    refetch,
-    isInitialLoading,
-  } = useQuery<UserData>(
-    [
-      {
-        endpoint: "users",
-        queryParams: {
-          page: pageIndex,
-          limit: pageSize,
-          sort: "createdAt",
-          order: "desc",
+  const { data, isError, isLoading, isFetching, isFetched, refetch } =
+    useQuery<UserData>(
+      [
+        {
+          endpoint: "users",
+          queryParams: {
+            page: pageIndex,
+            limit: pageSize,
+            sort: "createdAt",
+            order: "desc",
+          },
         },
-      },
-    ],
-    { initialData: initialData || { rows: [], count: 0 } },
-  );
+      ],
+      { initialData: initialData || { rows: [], count: 0 } },
+    );
   useEffect(() => {
     initialData &&
       setTableState((prev) => ({
@@ -105,14 +113,25 @@ export function SampleTable({ initialData }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
   });
   let notice = "";
-  if (data.rows.length === 0) {
-    if (isFetching || isLoading) notice = "데이터를 불러오고 있습니다.";
-    if (isError) notice = "데이터를 찾을 수 없습니다.";
-    if (isFetched && rows.length === 0)
-      notice = "데이터가 없습니다. 데이터를 생성 해주세요.";
-  }
+  const EMPTY_ROWS = 10;
+  const LOADING_MESSAGE = "데이터를 불러오고 있습니다.";
+  const ERROR_MESSAGE = "데이터를 찾을 수 없습니다.";
+  const NO_DATA_MESSAGE = "데이터가 없습니다. 데이터를 생성 해주세요.";
 
-  if (isLoading || isError || data.rows.length === 0)
+  // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
+  function renderDataStatusMessage(
+    isLoading: boolean,
+    isError: boolean,
+    rows: User[],
+  ): string | null {
+    if (isLoading) return LOADING_MESSAGE;
+    if (isError) return ERROR_MESSAGE;
+    if (rows.length === 0) return NO_DATA_MESSAGE;
+    return null;
+  }
+  const statusMessage = renderDataStatusMessage(isLoading, isError, data.rows);
+
+  if (statusMessage || data.rows.length === 0)
     return (
       <div className="mx-auto max-w-screen-2xl">
         <FunctionToolbar />
@@ -120,23 +139,14 @@ export function SampleTable({ initialData }: Props) {
           <Table className="my-4" maxHeight="35vh">
             <SampleTableHeader table={table} />
             <TableBody className="h-96 overflow-y-auto">
-              {[...Array(10)].map((_, index) => (
+              {[...Array(EMPTY_ROWS)].map((_, index) => (
                 <TableRow className="border-b-0 " key={index}>
-                  {index === 2 ? (
-                    <TableCell
-                      className="my-auto items-center text-center"
-                      colSpan={defaultColumn.length}
-                    >
-                      {notice}
-                    </TableCell>
-                  ) : (
-                    <TableCell
-                      className="my-auto items-center text-center"
-                      colSpan={defaultColumn.length}
-                    >
-                      {"ㅤ"}
-                    </TableCell>
-                  )}
+                  <TableCell
+                    className="my-auto items-center text-center"
+                    colSpan={defaultColumn.length}
+                  >
+                    {index === 2 ? statusMessage : "ㅤ"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -160,12 +170,10 @@ export function SampleTable({ initialData }: Props) {
 }
 SampleTable.displayName = "SampleTable";
 
+// 테이블 헤더 부분을 렌더링하는 컴포넌트
 function SampleTableHeader({ table }: { table: TableType<User> }) {
   return (
-    <TableHeader
-      className="sticky top-0 bg-gray-700 text-white dark:bg-slate-800"
-      // style={{ position: "sticky", top: "0px", background: "black" }}
-    >
+    <TableHeader className="sticky top-0 bg-gray-700 text-white dark:bg-slate-800">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => {
@@ -192,6 +200,7 @@ function SampleTableHeader({ table }: { table: TableType<User> }) {
   );
 }
 
+// 테이블 바디 부분을 렌더링하는 컴포넌트
 function SampleTableBody({ table }: { table: TableType<User> }) {
   return (
     <TableBody className="h-96 overflow-y-auto">
@@ -212,6 +221,7 @@ function SampleTableBody({ table }: { table: TableType<User> }) {
   );
 }
 
+// 테이블의 페이지네이션을 제어하는 컴포넌트
 export function TablePageController() {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { count, pageIndex, pageSize, pageCount } = tableState;

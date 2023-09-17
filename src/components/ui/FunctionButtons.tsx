@@ -1,4 +1,4 @@
-"use client";
+"use client"; // React Client 컴포넌트 임을 명시
 
 import { Button } from "@/components/atoms/Button";
 import { cn, fetchC } from "@/lib/utils";
@@ -9,33 +9,31 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
-import { sampleTableState } from "../SampleTableState";
+import { sampleTableState } from "@/components/store/SampleTableState";
 
+// 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export function FunctionToolbar({ className }: { className?: string }) {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { refetch } = tableState;
-  const goToFrontPage = () => {
+
+  // 첫 번째 페이지로 되돌리는 함수
+  const resetToFirstPage = () => {
     setTableState((prev) => ({ ...prev, pageIndex: 0 }));
   };
-  const resetPageSize = () => {
-    setTableState((prev) => ({ ...prev, pageIndex: 0, pageSize: 10 }));
-  };
+
   return (
     <div className={cn("flex justify-end", className)}>
       <GenerateData
         className="border-r border-gray-400"
         refetch={refetch}
-        syncState={goToFrontPage}
+        syncState={resetToFirstPage}
       />
-      <ResetButton
-        refetch={refetch}
-        syncState={goToFrontPage}
-        resetSize={resetPageSize}
-      />
+      <ResetButton refetch={refetch} syncState={resetToFirstPage} />
     </div>
   );
 }
 
+// Props 타입 정의
 type Props = {
   className?: string;
   refetch: () => void;
@@ -43,21 +41,29 @@ type Props = {
   resetSize?: () => void;
 };
 
+// 데이터를 생성하는 컴포넌트
 export function GenerateData({ className, refetch, syncState }: Props) {
   const { register, handleSubmit } = useForm();
   const { mutate, status } = useMutation(fetchC);
 
-  const handleGenerateData = (inputValue: Record<string, unknown>) => {
-    const { rows } = inputValue;
-    const dummyData: Person[] = makeData(rows as number);
-    dummyData.forEach((person) => {
-      mutate({
-        endpoint: "users", // http://localhost:3000/api/users
-        method: "POST",
-        body: person,
+  // 더미 데이터를 생성하고 API에 데이터를 전송하는 함수
+  const handleGenerateData = async (inputValue: Record<string, unknown>) => {
+    try {
+      const { rows } = inputValue;
+      const dummyData: Person[] = makeData(rows as number);
+      dummyData.forEach((person) => {
+        mutate({
+          endpoint: "users",
+          method: "POST",
+          body: person,
+        });
       });
-    });
+    } catch (error) {
+      console.error("Error generating data:", error);
+    }
   };
+
+  // 데이터 생성이 성공한 후 상태를 동기화하고 데이터를 다시 가져오는 Hook
   useEffect(() => {
     if (status === "success") {
       syncState();
@@ -90,24 +96,19 @@ export function GenerateData({ className, refetch, syncState }: Props) {
   );
 }
 
-export function ResetButton({
-  className,
-  refetch,
-  syncState,
-  resetSize,
-}: Props) {
-  const { mutate, status, isSuccess } = useMutation(fetchC, {
+// 데이터를 초기화하는 버튼 컴포넌트
+export function ResetButton({ className, refetch, syncState }: Props) {
+  const { mutate } = useMutation(fetchC, {
     onSuccess: () => {
-      if (resetSize) {
-        syncState();
-        refetch();
-      }
+      syncState();
+      refetch();
     },
   });
 
+  // 데이터 초기화 요청을 보내는 함수
   const handleResetData = () => {
     mutate({
-      endpoint: "users", // http://localhost:3000/api/users
+      endpoint: "users",
       method: "DELETE",
       body: { idx: "reset-data" },
     });

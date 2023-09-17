@@ -1,7 +1,10 @@
-"use client";
+"use client"; // React Client 컴포넌트 임을 명시
 
-import React, { useEffect } from "react";
+/** 필수 React 훅과 아이콘 라이브러리 */
+import React, { useRef } from "react";
 import { RxPencil1 } from "react-icons/rx";
+
+/** UI 컴포넌트들 */
 import {
   Dialog,
   DialogTrigger,
@@ -12,44 +15,88 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/atoms/Dialog";
-import { Button, buttonVariants } from "@/components/atoms/Button";
+import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
+
+/** 폼 핸들링을 위한 react-hook-form 라이브러리의 Hook */
 import { useForm } from "react-hook-form";
+
+/** Prisma의 User 모델 */
 import { User } from "@prisma/client";
+
+/** 데이터 페치 및 상태 관리 라이브러리 */
 import { useMutation } from "@tanstack/react-query";
 import { fetchC } from "@/lib/utils";
 import { useRecoilValue } from "recoil";
-import { sampleTableState } from "../SampleTableState";
+import { sampleTableState } from "@/components/store/SampleTableState";
 
-type Props = {
+// 입력 필드의 props 타입 정의
+type InputFieldProps = {
+  name: string;
+  label: string;
+  defaultValue: string | number;
+  disabled?: boolean;
+  register?: (name: string) => void;
+};
+
+// 일반적인 입력 필드 컴포넌트 정의
+const InputField = ({
+  name,
+  label,
+  defaultValue,
+  disabled = false,
+  register,
+}: InputFieldProps) => (
+  <div>
+    <Label htmlFor={name}>{label}</Label>
+    <Input
+      {...(register ? register(name) : {})}
+      type="text"
+      name={name}
+      id={name}
+      className="border"
+      defaultValue={defaultValue}
+      disabled={disabled}
+    />
+  </div>
+);
+
+// 사용자 정보 수정 다이얼로그의 props 타입 정의
+type ModifyDialogProps = {
   user: User;
 };
 
-export default function ModifyDialog({ user }: Props) {
+// 사용자 정보 수정 다이얼로그 컴포넌트 정의
+export default function ModifyDialog({ user }: ModifyDialogProps) {
   const { refetch } = useRecoilValue(sampleTableState);
   const { idx, name, email, age, visits, progress, status } = user;
+
+  // useForm의 결과를 가져옴
   const { register, handleSubmit } = useForm();
+
+  // 데이터 수정 시 사용할 mutation 훅
   const { mutate } = useMutation(fetchC, {
+    // 성공적으로 데이터가 수정됐을 때 실행할 콜백
     onSuccess: () => {
-      refetch();
-      closeRef.current?.click();
+      refetch(); // 데이터를 다시 가져옴
+      closeRef.current?.click(); // 다이얼로그를 닫음
     },
   });
-  const closeRef = React.useRef<HTMLButtonElement>(null);
 
+  // ref로 다이얼로그 닫기 버튼을 참조
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // 폼 데이터가 제출됐을 때 실행할 핸들러
   const onSubmit = (data: any) => {
-    data.idx = idx;
-    data.status = status;
-    data.name = name;
-
     mutate({
       endpoint: `users`,
       method: "PUT",
-      body: data,
+      body: { ...data, idx, status, name },
     });
   };
 
+  // 컴포넌트 렌더링
   return (
     <Dialog>
       <DialogTrigger className="">
@@ -64,72 +111,37 @@ export default function ModifyDialog({ user }: Props) {
         </DialogHeader>
         <form>
           <DialogDescription className="flex flex-col gap-2">
-            <div>
-              <Label htmlFor="name">이름</Label>
-              <Input
-                type="text"
-                name="name"
-                id="name"
-                className="border"
-                defaultValue={name}
-                disabled
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">이메일</Label>
-              <Input
-                {...register("email")}
-                type="text"
-                name="email"
-                id="email"
-                className="border"
-                defaultValue={email}
-              />
-            </div>
-            <div>
-              <Label htmlFor="age">나이</Label>
-              <Input
-                {...register("age")}
-                type="text"
-                name="age"
-                id="age"
-                className="border"
-                defaultValue={age}
-              />
-            </div>
-            <div>
-              <Label htmlFor="visits">방문횟수</Label>
-              <Input
-                {...register("visits")}
-                type="text"
-                name="visits"
-                id="visits"
-                className="border"
-                defaultValue={visits}
-              />
-            </div>
-            <div>
-              <Label htmlFor="progress">진행률</Label>
-              <Input
-                {...register("progress")}
-                type="text"
-                name="progress"
-                id="progress"
-                className="border"
-                defaultValue={progress}
-              />
-            </div>
-            <div>
-              <Label htmlFor="status">상태</Label>
-              <Input
-                type="text"
-                name="status"
-                id="status"
-                className="border"
-                defaultValue={status}
-                disabled
-              />
-            </div>
+            <InputField name="name" label="이름" defaultValue={name} disabled />
+            <InputField
+              name="email"
+              label="이메일"
+              defaultValue={email}
+              register={register}
+            />
+            <InputField
+              name="age"
+              label="나이"
+              defaultValue={age}
+              register={register}
+            />
+            <InputField
+              name="visits"
+              label="방문횟수"
+              defaultValue={visits}
+              register={register}
+            />
+            <InputField
+              name="progress"
+              label="진행률"
+              defaultValue={progress}
+              register={register}
+            />
+            <InputField
+              name="status"
+              label="상태"
+              defaultValue={status}
+              disabled
+            />
           </DialogDescription>
           <DialogFooter className="mt-2">
             <Button
