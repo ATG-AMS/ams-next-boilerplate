@@ -3,19 +3,19 @@
 name: CI/CD Pipeline
 on:
   workflow_dispatch:
-  push:
-    branches: ["main", "stg", "dev"]
-    paths-ignore:
-      - ".github/**"
-      - "!.github/workflows/ci.yml"
-      - "!.github/workflows/typechecking.yml"
-      - "!.github/workflows/tests.yml"
-      - "!.github/workflows/release.yml"
-      - "!.github/workflows/deploy.yml"
-      - "!.github/workflows/story.yml"
-      - "**.md"
-      - .gitignore
-      - ".vscode/**"
+  # push:
+  #   branches: ["main", "stg", "dev"]
+  #   paths-ignore:
+  #     - ".github/**"
+  #     - "!.github/workflows/ci.yml"
+  #     - "!.github/workflows/typechecking.yml"
+  #     - "!.github/workflows/tests.yml"
+  #     - "!.github/workflows/release.yml"
+  #     - "!.github/workflows/deploy.yml"
+  #     - "!.github/workflows/story.yml"
+  #     - "**.md"
+  #     - .gitignore
+  #     - ".vscode/**"
   # pull_request:
   #   types: [closed]
   #   paths-ignore:
