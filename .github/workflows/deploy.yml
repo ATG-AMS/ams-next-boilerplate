@@ -1,0 +1,58 @@
+name: Deploy
+on: [workflow_call]
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: self-hosted
+    outputs:
+      meta: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: ${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            BUILD_ENV=${{ github.ref_name }}
+            NEXTAUTH_SECRET=${{ vars.NEXTAUTH_SECRET}}
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Deploy
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+              PORT=35080
+          elif [ "${{ github.ref_name }}" = "stg" ]; then
+              PORT=35081
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+              PORT=35082
+          fi
+
+          CT_NAME="dh-next-web-${{ github.ref_name }}"
+          CONTAINER_STATUS=$(docker container inspect $CT_NAME -f '{{.State.Status}}' 2>/dev/null || echo "not found")
+          if [ "$CONTAINER_STATUS" = "running" ]; then
+              docker stop $CT_NAME
+              docker container rm $CT_NAME
+          elif [ "$CONTAINER_STATUS" = "exited" ]; then
+              docker container rm $CT_NAME
+          fi
+          docker run -p $PORT:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}

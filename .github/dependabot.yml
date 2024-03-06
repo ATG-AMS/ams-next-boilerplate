@@ -1,0 +1,16 @@
+# Dependabot 버전 업데이트를 시작하려면 업데이트할 package echosystem과 manifest의 위치를 지정해야 합니다.
+# 업데이트할 package echosystem과 manifest가 있는 위치를 지정해야 합니다.
+# 자세한 내용은 공식문서를 참조하세요:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://containers.dev/guide/dependabot
+
+version: 2
+updates:
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: daily

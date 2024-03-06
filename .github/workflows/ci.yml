@@ -1,0 +1,53 @@
+# This workflow is the entry point for all CI processes.
+# It is from here that all other workflows are launched.
+name: CI/CD Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "stg", "dev"]
+    paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+      - "!.github/workflows/typechecking.yml"
+      - "!.github/workflows/tests.yml"
+      - "!.github/workflows/release.yml"
+      - "!.github/workflows/deploy.yml"
+      - "!.github/workflows/story.yml"
+      - "**.md"
+      - .gitignore
+      - ".vscode/**"
+  # pull_request:
+  #   types: [closed]
+  #   paths-ignore:
+  #     - ".github/**"
+  #     - "!.github/workflows/ci.yml"
+  #     - "!.github/workflows/typechecking.yml"
+  #     - "!.github/workflows/tests.yml"
+  #     - "!.github/workflows/release.yml"
+  #     - "!.github/workflows/deploy.yml"
+  #     - "!.github/workflows/story.yml"
+  #     - "**.md"
+  #     - .gitignore
+  #     - ".vscode/**"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typechecking:
+    uses: ./.github/workflows/typechecking.yml
+  deploy:
+    needs: [typechecking]
+    uses: ./.github/workflows/deploy.yml
+  storybook:
+    if: ${{ github.ref_name == 'dev' }}
+    needs: [typechecking]
+    uses: ./.github/workflows/story.yml
+  draft_release:
+    needs: [typechecking]
+    permissions:
+      contents: write # Allows this job to create releasess
+    with:
+      dry-run: ${{ github.event_name != 'push' || github.ref_name != 'main' }}
+    uses: ./.github/workflows/release.yml
