@@ -1,0 +1,30 @@
+# 이 workflow에서는 Node의 종속성을 새로 설치하고, 캐시/복원하고, 소스 코드를 빌드하고, 여러 버전의 노드에서 테스트를 실행할 수 있습니다.
+# 자세한 내용은 공식문서를 참조하세요: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+# on:
+#   push:
+#     branches: ["main", "stg", "dev"]
+#   pull_request:
+#     branches: ["main", "stg", "dev"]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    environment: ${{ github.base_ref }}
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: pnpm install
+
+      - run: pnpm build --if-present
