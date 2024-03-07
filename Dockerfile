@@ -21,7 +21,6 @@ RUN \
 # base 스테이지를 기반으로 builder 빌드 스테이지를 정의합니다.
 FROM base AS builder
 ARG BUILD_ENV
-ARG DATABASE_URL
 
 WORKDIR /app
 
@@ -42,6 +41,8 @@ RUN pnpm dlx prisma generate && pnpm build
 
 # base 스테이지를 기반으로 runner 빌드 스테이지를 정의합니다.
 FROM base AS runner
+ARG DATABASE_URL
+
 WORKDIR /app
 
 # 환경변수를 설정합니다.
