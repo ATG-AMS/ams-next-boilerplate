@@ -37,7 +37,7 @@ ENV BUILD_ENV $BUILD_ENV
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # 빌드 스크립트를 실행합니다.
-RUN pnpm dlx prisma generate && pnpm build
+RUN pnpm dlx prisma generate && pnpm build && pnpm dlx prisma migrate deploy
 
 # base 스테이지를 기반으로 runner 빌드 스테이지를 정의합니다.
 FROM base AS runner
