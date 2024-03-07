@@ -55,8 +55,10 @@ runs:
         # version: 8.6.7
 
     - name: Check Current Working Directory
+      shell: bash
       run: |
         echo "Checking the directory: ${{ inputs.cwd }}"
+        ls -lah "${{ inputs.cwd }}"
 
     - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
       id: pnpm-config
@@ -65,6 +67,7 @@ runs:
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
     - name: Check Store Path
+      shell: bash
       run: |
         echo "Store path: ${{ steps.pnpm-config.outputs.STORE_PATH }}"
 
