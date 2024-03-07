@@ -22,4 +22,4 @@ jobs:
       - name: 📥 Install dependencies
         uses: ./.github/actions/pnpm-install
 
-      - run: pnpm typecheck --if-present
+      - run: pnpm typecheck
