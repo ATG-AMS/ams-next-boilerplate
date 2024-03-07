@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "start:prod": "NODE_ENV=production node .next/server.js",
+    "start:migrate:prod": "prisma migrate deploy && npm run start:prod"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",

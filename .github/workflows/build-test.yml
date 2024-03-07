@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/pnpm-install
 
       - name: Generate Prisma Client
-        run: pnpm dlx prisma generate
+        run: pnpm dlx prisma generate && prisma migrate deploy
 
       - name: Test build
         run: pnpm build
