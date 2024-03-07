@@ -64,7 +64,8 @@ runs:
       id: pnpm-config
       shell: bash
       run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        UNIQUE_STORE_PATH="/home/atg/setup-pnpm/node_modules/.bin/store/v3/${{ github.run_id }}"
+        echo "STORE_PATH=${UNIQUE_STORE_PATH}" >> $GITHUB_OUTPUT
 
     - name: Check Store Path
       shell: bash
@@ -96,7 +97,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.cwd }}
       run: |
-        pnpm install --frozen-lockfile --prefer-offline --store-dir=${{ inputs.store-path }}
+        pnpm install --frozen-lockfile --prefer-offline --store-dir=${{ steps.pnpm-config.outputs.STORE_PATH }}
       env:
         # 기타 환경 변수
         HUSKY: '0' # 기본적으로 HUSKY 설치를 실행하지 않습니다.
