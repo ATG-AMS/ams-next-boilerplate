@@ -22,8 +22,7 @@ jobs:
         uses: ./.github/actions/pnpm-install
 
       - name: Generate .env file
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
 
       - name: Generate Prisma Client
         run: pnpm dlx prisma generate && pnpm dlx prisma migrate deploy
