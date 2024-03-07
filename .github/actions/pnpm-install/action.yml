@@ -57,7 +57,6 @@ runs:
     - name: Check Current Working Directory
       run: |
         echo "Checking the directory: ${{ inputs.cwd }}"
-        ls -lah "${{ inputs.cwd }}"
 
     - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
       id: pnpm-config
