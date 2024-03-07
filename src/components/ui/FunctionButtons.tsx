@@ -44,7 +44,7 @@ type Props = {
 // 데이터를 생성하는 컴포넌트
 export function GenerateData({ className, refetch, syncState }: Props) {
   const { register, handleSubmit } = useForm();
-  const { mutate, status } = useMutation(fetchC);
+  const { mutate, status } = useMutation({ mutationFn: fetchC });
 
   // 더미 데이터를 생성하고 API에 데이터를 전송하는 함수
   const handleGenerateData = async (inputValue: Record<string, unknown>) => {
@@ -98,7 +98,8 @@ export function GenerateData({ className, refetch, syncState }: Props) {
 
 // 데이터를 초기화하는 버튼 컴포넌트
 export function ResetButton({ className, refetch, syncState }: Props) {
-  const { mutate } = useMutation(fetchC, {
+  const { mutate } = useMutation({
+    mutationFn: fetchC,
     onSuccess: () => {
       syncState();
       refetch();

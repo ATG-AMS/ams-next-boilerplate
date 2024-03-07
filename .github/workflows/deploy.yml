@@ -48,11 +48,19 @@ jobs:
       - name: Deploy
         run: |
           CT_NAME="atg-next-boilerplate"
+          DEPLOY_TAG="${{ needs.build.outputs.meta }}"
           CONTAINER_STATUS=$(docker container inspect $CT_NAME -f '{{.State.Status}}' 2>/dev/null || echo "not found")
+
+          echo "Current container status: $CONTAINER_STATUS"
+
           if [ "$CONTAINER_STATUS" = "running" ]; then
+              echo "Stopping and removing the existing container..."
               docker stop $CT_NAME
               docker container rm $CT_NAME
           elif [ "$CONTAINER_STATUS" = "exited" ]; then
+              echo "Removing the exited container..."
               docker container rm $CT_NAME
           fi
-          docker run -p ${{ secrets.EXTERNAL_PORT }}:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}
+
+          echo "Running new container with image tag $DEPLOY_TAG..."
+          docker run -p ${{ secrets.EXTERNAL_PORT }}:3000 -d --restart=always --name $CT_NAME $DEPLOY_TAG

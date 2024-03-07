@@ -76,7 +76,8 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
   const { register, handleSubmit } = useForm();
 
   // 데이터 수정 시 사용할 mutation 훅
-  const { mutate } = useMutation(fetchC, {
+  const { mutate } = useMutation({
+    mutationFn: fetchC,
     // 성공적으로 데이터가 수정됐을 때 실행할 콜백
     onSuccess: () => {
       refetch(); // 데이터를 다시 가져옴

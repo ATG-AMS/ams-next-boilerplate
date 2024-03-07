@@ -68,7 +68,7 @@ export function SampleTable({ initialData }: Props) {
   const { rows, pageSize, pageIndex } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
     useQuery<UserData>(
-      [
+      {queryKey:[
         {
           endpoint: "users",
           queryParams: {
@@ -79,8 +79,8 @@ export function SampleTable({ initialData }: Props) {
           },
         },
       ],
-      { initialData: initialData || { rows: [], count: 0 } },
-    );
+      initialData: initialData || { rows: [], count: 0 },
+    });
   useEffect(() => {
     initialData &&
       setTableState((prev) => ({
