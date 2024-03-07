@@ -21,5 +21,8 @@ jobs:
       - name: 📥 Install dependencies
         uses: ./.github/actions/pnpm-install
 
+      - name: Generate Prisma Client
+        run: pnpm dlx prisma generate
+
       - name: Test build
         run: pnpm build
