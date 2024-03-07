@@ -19,7 +19,6 @@ interface ServerSideFetchOptions {
 }
 
 export const fetchS = async (options: ServerSideFetchOptions) => {
-  console.log("🚀 ~ fetchS ~ ServerSide ~ options:", options);
   const url = new URL(`${process.env.NEXT_PUBLIC_API_URI}/${options.endpoint}`);
   if (options.queryParams) {
     createQueryParams(url, options.queryParams);
