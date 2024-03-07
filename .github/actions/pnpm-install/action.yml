@@ -54,11 +54,20 @@ runs:
         # package.json에 packageManager 필드를 설정하지 않은 경우, 여기에 버전을 추가하세요.
         # version: 8.6.7
 
+    - name: Check Current Working Directory
+      run: |
+        echo "Checking the directory: ${{ inputs.cwd }}"
+        ls -lah "${{ inputs.cwd }}"
+
     - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
       id: pnpm-config
       shell: bash
       run: |
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Check Store Path
+      run: |
+        echo "Store path: ${{ steps.pnpm-config.outputs.STORE_PATH }}"
 
     - name: Cache rotation keys
       id: cache-rotation
