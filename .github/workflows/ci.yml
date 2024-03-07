@@ -39,6 +39,9 @@ jobs:
   lint:
     if: github.event_name == 'push'
     uses: ./.github/workflows/lint.yml
+  build-test:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/build-test.yml
   deploy:
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
