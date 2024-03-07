@@ -42,6 +42,7 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
+    environment: Production
     steps:
       - name: Deploy
         run: |
