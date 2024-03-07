@@ -1,5 +1,5 @@
-# This workflow is the entry point for all CI processes.
-# It is from here that all other workflows are launched.
+# 이 워크플로우는 모든 CI 프로세스의 시작점입니다.
+# 여기서 모든 다른 워크플로우가 실행됩니다.
 name: CI/CD Pipeline
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
       - .gitignore
       - ".vscode/**"
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened]
     paths-ignore:
       - ".github/**"
       - "!.github/workflows/ci.yml"
@@ -34,14 +34,14 @@ concurrency:
 
 jobs:
   typechecking:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     uses: ./.github/workflows/typechecking.yml
   lint:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     uses: ./.github/workflows/lint.yml
   build-test:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     uses: ./.github/workflows/build-test.yml
   deploy:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy.yml
