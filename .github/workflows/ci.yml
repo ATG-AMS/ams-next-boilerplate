@@ -34,13 +34,13 @@ concurrency:
 
 jobs:
   typechecking:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/typechecking.yml
   lint:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/lint.yml
   build-test:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/build-test.yml
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
