@@ -68,7 +68,11 @@ export const defaultColumn: ColumnDef<User>[] = [
     // 수정 버튼에 대한 컬럼
     header: "수정",
     // 각 행에 대한 사용자 정보를 ModifyDialog 컴포넌트에 전달
-    cell: (cell) => <ModifyDialog user={cell.row.original} />,
+    cell: (cell) => (
+      <div className="text-center">
+        <ModifyDialog user={cell.row.original} />
+      </div>
+    ),
   },
 ];
 

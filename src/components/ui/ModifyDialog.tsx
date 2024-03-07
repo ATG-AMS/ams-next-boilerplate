@@ -99,7 +99,7 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
   // 컴포넌트 렌더링
   return (
     <Dialog>
-      <DialogTrigger className="">
+      <DialogTrigger>
         <RxPencil1
           className={"cursor-pointer transition-all hover:ease-in-out"}
           size={20}
