@@ -8,7 +8,7 @@ on: [workflow_call]
 jobs:
   build:
     runs-on: self-hosted
-    environment: ${{ github.base_ref }}
+    environment: Production
 
     steps:
       - uses: actions/checkout@v4
