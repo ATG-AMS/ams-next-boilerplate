@@ -30,10 +30,6 @@ inputs:
     description: "프로젝트가 루트에 위치하지 않은 경우, node의 process.cwd()를 변경합니다. 기본값은 process.cwd()입니다."
     required: false
     default: '.'
-  store-path:
-    description: 'pnpm 스토어 경로를 설정합니다. 고유한 경로를 사용하여 runner 간의 충돌을 방지합니다.'
-    required: false
-    default: ''
 
 runs:
   using: 'composite'
@@ -54,23 +50,11 @@ runs:
         # package.json에 packageManager 필드를 설정하지 않은 경우, 여기에 버전을 추가하세요.
         # version: 8.6.7
 
-    - name: Check Current Working Directory
-      shell: bash
-      run: |
-        echo "Checking the directory: ${{ inputs.cwd }}"
-        ls -lah "${{ inputs.cwd }}"
-
     - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
       id: pnpm-config
       shell: bash
       run: |
-        UNIQUE_STORE_PATH="/home/atg/setup-pnpm/node_modules/.bin/store/v3/${{ github.run_id }}"
-        echo "STORE_PATH=${UNIQUE_STORE_PATH}" >> $GITHUB_OUTPUT
-
-    - name: Check Store Path
-      shell: bash
-      run: |
-        echo "Store path: ${{ steps.pnpm-config.outputs.STORE_PATH }}"
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
     - name: Cache rotation keys
       id: cache-rotation
@@ -96,8 +80,7 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.cwd }}
-      run: |
-        pnpm install --frozen-lockfile --prefer-offline --store-dir=${{ steps.pnpm-config.outputs.STORE_PATH }}
+      run: pnpm install --frozen-lockfile --prefer-offline
       env:
         # 기타 환경 변수
         HUSKY: '0' # 기본적으로 HUSKY 설치를 실행하지 않습니다.
