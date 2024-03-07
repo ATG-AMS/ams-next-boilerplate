@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # 패키지 매니저 파일들을 복사합니다.
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc ./
 # 사용 가능한 패키지 매니저에 따라 의존성을 설치합니다.
 RUN \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
