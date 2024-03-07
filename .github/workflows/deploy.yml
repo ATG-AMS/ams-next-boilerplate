@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Generate .env file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_API_URI=${{ secrets.NEXT_PUBLIC_API_URI }}" >> .env
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -46,4 +51,4 @@ jobs:
           elif [ "$CONTAINER_STATUS" = "exited" ]; then
               docker container rm $CT_NAME
           fi
-          docker run -p 34000:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}
+          docker run -p ${{ secrets.EXTERNAL_PORT }}:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}
