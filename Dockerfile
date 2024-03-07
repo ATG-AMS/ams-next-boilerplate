@@ -23,6 +23,10 @@ FROM base AS builder
 ARG BUILD_ENV
 
 WORKDIR /app
+
+# 패키지 매니저 설치
+RUN npm install -g pnpm
+
 # deps 스테이지에서 설치한 node_modules를 복사합니다.
 COPY --from=deps /app/node_modules ./node_modules
 # 애플리케이션의 소스 코드를 복사합니다.
