@@ -3,32 +3,30 @@
 name: CI/CD Pipeline
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["main", "stg", "dev"]
-  #   paths-ignore:
-  #     - ".github/**"
-  #     - "!.github/workflows/ci.yml"
-  #     - "!.github/workflows/typechecking.yml"
-  #     - "!.github/workflows/tests.yml"
-  #     - "!.github/workflows/release.yml"
-  #     - "!.github/workflows/deploy.yml"
-  #     - "!.github/workflows/story.yml"
-  #     - "**.md"
-  #     - .gitignore
-  #     - ".vscode/**"
-  # pull_request:
-  #   types: [closed]
-  #   paths-ignore:
-  #     - ".github/**"
-  #     - "!.github/workflows/ci.yml"
-  #     - "!.github/workflows/typechecking.yml"
-  #     - "!.github/workflows/tests.yml"
-  #     - "!.github/workflows/release.yml"
-  #     - "!.github/workflows/deploy.yml"
-  #     - "!.github/workflows/story.yml"
-  #     - "**.md"
-  #     - .gitignore
-  #     - ".vscode/**"
+  push:
+    branches: ["main", "stg", "dev"]
+    paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+      - "!.github/workflows/typechecking.yml"
+      - "!.github/workflows/build-test.yml"
+      - "!.github/workflows/lint.yml"
+      - "!.github/workflows/deploy.yml"
+      - "**.md"
+      - .gitignore
+      - ".vscode/**"
+  pull_request:
+    types: [closed]
+    paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+      - "!.github/workflows/typechecking.yml"
+      - "!.github/workflows/build-test.yml"
+      - "!.github/workflows/lint.yml"
+      - "!.github/workflows/deploy.yml"
+      - "**.md"
+      - .gitignore
+      - ".vscode/**"
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -36,18 +34,11 @@ concurrency:
 
 jobs:
   typechecking:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/typechecking.yml
+  lint:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/lint.yml
   deploy:
-    needs: [typechecking]
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
-  storybook:
-    if: ${{ github.ref_name == 'dev' }}
-    needs: [typechecking]
-    uses: ./.github/workflows/story.yml
-  draft_release:
-    needs: [typechecking]
-    permissions:
-      contents: write # Allows this job to create releasess
-    with:
-      dry-run: ${{ github.event_name != 'push' || github.ref_name != 'main' }}
-    uses: ./.github/workflows/release.yml
