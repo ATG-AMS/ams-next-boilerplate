@@ -8,7 +8,7 @@ on: [workflow_call]
 jobs:
   build:
     runs-on: self-hosted
-    environment: Production
+    environment: ${{ github.base_ref }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/pnpm-install
 
       - name: Generate .env file
-        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+        run: cp .env.example .env
 
       - name: Generate Prisma Client
         run: pnpm dlx prisma generate && pnpm dlx prisma migrate deploy
