@@ -46,4 +46,4 @@ jobs:
           elif [ "$CONTAINER_STATUS" = "exited" ]; then
               docker container rm $CT_NAME
           fi
-          docker run -p $PORT:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}
+          docker run -p 34000:3000 -d --restart=always --name $CT_NAME ${{ needs.build.outputs.meta }}
