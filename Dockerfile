@@ -21,6 +21,7 @@ RUN \
 # base 스테이지를 기반으로 builder 빌드 스테이지를 정의합니다.
 FROM base AS builder
 ARG BUILD_ENV
+ARG DATABASE_URL
 
 WORKDIR /app
 
@@ -37,7 +38,7 @@ ENV BUILD_ENV $BUILD_ENV
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # 빌드 스크립트를 실행합니다.
-RUN pnpm dlx prisma generate && pnpm dlx prisma migrate deploy && pnpm build
+RUN pnpm dlx prisma generate && pnpm build
 
 # base 스테이지를 기반으로 runner 빌드 스테이지를 정의합니다.
 FROM base AS runner
@@ -46,6 +47,7 @@ WORKDIR /app
 # 환경변수를 설정합니다.
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV DATABASE_URL $DATABASE_URL
 
 # nextjs 사용자와 그룹을 시스템 사용자로 추가합니다.
 RUN addgroup --system --gid 1001 nodejs
@@ -62,6 +64,8 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma/
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-bootstrap-app.sh ./
 
 # nextjs 사용자로 전환합니다.
 USER nextjs

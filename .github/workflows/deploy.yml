@@ -35,6 +35,7 @@ jobs:
           file: ./Dockerfile
           build-args: |
             BUILD_ENV=${{ github.ref_name }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
