@@ -12,11 +12,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+
+      - uses: actions/setup-node@v4
+        name: Use Node.js ${{ matrix.node-version }}
         with:
           node-version-file: '.nvmrc'
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
 
-      - run: pnpm build --if-present
+      - name: 📥 Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Test build
+        run: pnpm build --if-present

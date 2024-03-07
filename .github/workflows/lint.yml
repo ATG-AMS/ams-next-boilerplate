@@ -11,17 +11,16 @@ defaults:
 
 jobs:
   eslint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      - name: 📥 Install dependencies
+        uses: ./.github/actions/pnpm-install
 
       - run: pnpm lint --if-present

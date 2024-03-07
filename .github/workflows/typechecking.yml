@@ -18,8 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - name: 📥 Install dependencies
+        uses: ./.github/actions/pnpm-install
 
-      - run: pnpm typecheck
+      - run: pnpm typecheck --if-present
