@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo "NEXT_PUBLIC_API_URI=${{ secrets.NEXT_PUBLIC_API_URI }}" >> .env
-          echo ./.env
+          cat .env
 
       - name: Extract Docker metadata
         id: meta
