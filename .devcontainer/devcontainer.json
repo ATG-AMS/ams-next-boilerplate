@@ -1,60 +1,66 @@
 // devcontainer.json 형식에 대한 자세한 내용은 https://aka.ms/devcontainer.json 를 참조하세요.
 // README: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-    "name": "ATG Next.js Boilerplate",
-    // 이미지 또는 DockerFile, Docker Compose를 사용할 수 있습니다. 자세한 정보:  https://containers.dev/guide/dockerfile
-    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
-    "mounts": [
-      "source=global-pnpm-store,target=${containerWorkspaceFolder}/.pnpm-store,type=volume"
-    ],
-    // dev container 에 추가할 기능들. 자세한 정보: https://containers.dev/features.
-    // "features": {},
+  "name": "ATG Next.js Boilerplate",
+  // 이미지 또는 DockerFile, Docker Compose를 사용할 수 있습니다. 자세한 정보:  https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  "mounts": [
+    "source=global-pnpm-store,target=${containerWorkspaceFolder}/.pnpm-store,type=volume"
+  ],
+  // dev container 에 추가할 기능들. 자세한 정보: https://containers.dev/features.
+  // "features": {},
 
-    // 'forwardPorts'를 사용하면 컨테이너 내부의 포트들을 로컬에서 사용 할 수 있습니다.
-    // "forwardPorts": [],
+  // 'forwardPorts'를 사용하면 컨테이너 내부의 포트들을 로컬에서 사용 할 수 있습니다.
+  // "forwardPorts": [],
 
-    // 'postCreateCommand'에 컨테이너가 생성된 직후 실행될 명령어를 작성할 수 있습니다.
-    "postCreateCommand": "sudo chown node .pnpm-store",
+  // 'postCreateCommand'에 컨테이너가 생성된 직후 실행될 명령어를 작성할 수 있습니다.
+  "postCreateCommand": "sudo chown node .pnpm-store",
 
-    // 도구별 기본 구성을 커스터마이징 할 수 있습니다.
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "wallabyjs.console-ninja",
-          "unifiedjs.vscode-mdx",
-          "chakrounanas.turbo-console-log",
-          "codezombiech.gitignore",
-          "dbaeumer.vscode-eslint",
-          "donjayamanne.git-extension-pack",
-          "donjayamanne.githistory",
-          "eamodio.gitlens",
-          "seatonjiang.gitmoji-vscode",
-          "esbenp.prettier-vscode",
-          "formulahendry.auto-rename-tag",
-          "github.github-vscode-theme",
-          "gruntfuggly.todo-tree",
-          "wayou.vscode-todo-highlight",
-          "intellsmi.comment-translate",
-          "mechatroner.rainbow-csv",
-          "mhutchie.git-graph",
-          "ms-ceintl.vscode-language-pack-ko",
-          "ms-vscode.live-server",
-          "ms-vsliveshare.vsliveshare",
-          "oderwat.indent-rainbow",
-          "ryanluker.vscode-coverage-gutters",
-          "shardulm94.trailing-spaces",
-          "streetsidesoftware.code-spell-checker",
-          "visualstudioexptteam.intellicode-api-usage-examples",
-          "bradlc.vscode-tailwindcss",
-          "austenc.tailwind-docs",
-          "ms-playwright.playwright"
-        ],
-        "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-      }
+  // 'postStartCommand'에 컨테이너가 시작된 직후 실행될 명령어를 작성할 수 있습니다.
+  "postStartCommand": "pnpm install",
+
+  // 'postAttachCommand'에 컨테이너에 연결된 직후 실행될 명령어를 작성할 수 있습니다.
+  "postAttachCommand": "cp ./.env.example ./.env && pnpm dlx prisma migrate dev && pnpm run dev",
+
+  // 도구별 기본 구성을 커스터마이징 할 수 있습니다.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "wallabyjs.console-ninja",
+        "unifiedjs.vscode-mdx",
+        "chakrounanas.turbo-console-log",
+        "codezombiech.gitignore",
+        "dbaeumer.vscode-eslint",
+        "donjayamanne.git-extension-pack",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "seatonjiang.gitmoji-vscode",
+        "esbenp.prettier-vscode",
+        "formulahendry.auto-rename-tag",
+        "github.github-vscode-theme",
+        "gruntfuggly.todo-tree",
+        "wayou.vscode-todo-highlight",
+        "intellsmi.comment-translate",
+        "mechatroner.rainbow-csv",
+        "mhutchie.git-graph",
+        "ms-ceintl.vscode-language-pack-ko",
+        "ms-vscode.live-server",
+        "ms-vsliveshare.vsliveshare",
+        "oderwat.indent-rainbow",
+        "ryanluker.vscode-coverage-gutters",
+        "shardulm94.trailing-spaces",
+        "streetsidesoftware.code-spell-checker",
+        "visualstudioexptteam.intellicode-api-usage-examples",
+        "bradlc.vscode-tailwindcss",
+        "austenc.tailwind-docs",
+        "ms-playwright.playwright"
+      ],
+      "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
     }
-
-    // dev container를 root 권한으로 실행하려면 아래의 주석을 해제합니다. 자세한 정보: https://aka.ms/dev-containers-non-root.
-    // "remoteUser": "root"
   }
+
+  // dev container를 root 권한으로 실행하려면 아래의 주석을 해제합니다. 자세한 정보: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}
