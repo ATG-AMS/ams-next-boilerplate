@@ -2,6 +2,6 @@
 # ENVIRONEMTN from docker-compose.yaml doesn't get through to subprocesses
 # Need to explicit pass DATABASE_URL here, otherwise migration doesn't work
 # Run migrations
-DATABASE_URL="postgres://postgres:postgres@db:5432/appdb?sslmode=disable" npx prisma migrate deploy
+DATABASE_URL="file:./dev.db" npx prisma migrate deploy
 # start app
-DATABASE_URL="postgres://postgres:postgres@db:5432/workler?sslmode=disable" node server.js
+DATABASE_URL="file:./dev.db" NEXT_PUBLIC_API_URI=https://next-boilerplate.atgams.com/api node server.js
