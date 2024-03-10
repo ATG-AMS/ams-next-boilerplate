@@ -7,7 +7,6 @@ env:
 jobs:
   build:
     runs-on: self-hosted
-    environment: main
     outputs:
       meta: ${{ steps.meta.outputs.tags }}
 
@@ -43,7 +42,6 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
-    environment: Production
     steps:
       - name: Deploy
         run: |

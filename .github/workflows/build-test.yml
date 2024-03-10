@@ -8,7 +8,6 @@ on: [workflow_call]
 jobs:
   build:
     runs-on: self-hosted
-    environment: ${{ github.base_ref }}
 
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         name: Use Node.js ${{ matrix.node-version }}
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: 📥 Install dependencies
         uses: ./.github/actions/pnpm-install
