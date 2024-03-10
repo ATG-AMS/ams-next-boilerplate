@@ -81,4 +81,4 @@ ENV HOSTNAME "0.0.0.0"
 
 # next build로 생성된 server.js를 실행합니다.
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+CMD ["sh", "docker-bootstrap-app.sh"]
