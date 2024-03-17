@@ -1,14 +1,14 @@
-import { SampleTable } from "@/components/ui/SampleTable";
-import { prisma } from "@/lib/prisma";
-import Image from "next/image";
+import { SampleTable } from '@/components/ui/SampleTable';
+import { prisma } from '@/lib/prisma';
+import Image from 'next/image';
 
-export default async function Home() {
+const Home = async () => {
   const sampleTableData = await prisma.user
     .findMany({
       skip: 0,
       take: 10,
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     })
     .then(async (users) => {
@@ -25,28 +25,28 @@ export default async function Home() {
         </p>
 
         <Image
-          src="/ATG.svg"
+          priority
           alt="ATG Logo"
+          height={37}
+          src="/ATG.svg"
           // className="dark:invert"
           width={180}
-          height={37}
-          priority
         />
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white lg:static lg:size-auto lg:bg-none dark:from-black dark:via-black">
           <a
             className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
             href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
             rel="noopener noreferrer"
+            target="_blank"
           >
-            With&nbsp;{" "}
+            With&nbsp;{' '}
             <Image
-              className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-              src="/next.svg"
-              alt="Next.js Logo"
-              width={150}
-              height={37}
               priority
+              alt="Next.js Logo"
+              className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
+              height={37}
+              src="/next.svg"
+              width={150}
             />
           </a>
         </div>
@@ -59,13 +59,13 @@ export default async function Home() {
 
       <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
         <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
+          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           rel="noopener noreferrer"
+          target="_blank"
         >
           <h2 className={`mb-3 text-2xl font-semibold`}>
-            Next.js{" "}
+            Next.js{' '}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -76,13 +76,13 @@ export default async function Home() {
         </a>
 
         <a
-          href="https://tanstack.com/query/v5/docs/react/overview"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
+          href="https://tanstack.com/query/v5/docs/react/overview"
           rel="noopener noreferrer"
+          target="_blank"
         >
           <h2 className={`mb-3 text-2xl font-semibold`}>
-            React Query{" "}
+            React Query{' '}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -94,13 +94,13 @@ export default async function Home() {
         </a>
 
         <a
-          href="https://recoiljs.org/docs/introduction/motivation"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
+          href="https://recoiljs.org/docs/introduction/motivation"
           rel="noopener noreferrer"
+          target="_blank"
         >
           <h2 className={`mb-3 text-2xl font-semibold`}>
-            Recoil{" "}
+            Recoil{' '}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -111,13 +111,13 @@ export default async function Home() {
         </a>
 
         <a
-          href="https://www.prisma.io/docs"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
+          href="https://www.prisma.io/docs"
           rel="noopener noreferrer"
+          target="_blank"
         >
           <h2 className={`mb-3 text-2xl font-semibold`}>
-            Prisma{" "}
+            Prisma{' '}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -129,4 +129,6 @@ export default async function Home() {
       </div>
     </main>
   );
-}
+};
+
+export default Home;

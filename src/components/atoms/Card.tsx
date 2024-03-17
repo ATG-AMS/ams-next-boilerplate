@@ -13,11 +13,11 @@ const Card: React.FunctionComponent<Props> = (
   ref,
 ) => (
   <Component
+    href={href}
     className={cn(
       "rounded-3xl border border-gray-200 bg-white p-6 text-gray-800 shadow-xl transition-all duration-150 ease-in-out",
       className,
     )}
-    href={href}
     {...props}
   />
 );
