@@ -1,12 +1,12 @@
 "use client"; // React Client 컴포넌트 임을 명시
 
-import { User } from "@prisma/client"; // Prisma에서 제공하는 User 모델
-import { ColumnDef } from "@tanstack/react-table"; // @tanstack/react-table 라이브러리에서 제공하는 ColumnDef 타입
-import { ReactNode } from "react"; // React의 기본 타입인 ReactNode 타입
+import type { User } from "@prisma/client"; // Prisma에서 제공하는 User 모델
+import type { ColumnDef } from "@tanstack/react-table"; // @tanstack/react-table 라이브러리에서 제공하는 ColumnDef 타입
+import type { ReactNode } from "react"; // React의 기본 타입인 ReactNode 타입
 import ModifyDialog from "./ModifyDialog"; // 사용자 정보 수정 다이얼로그 컴포넌트
 
 // 테이블의 기본 컬럼 정의
-export const defaultColumn: ColumnDef<User>[] = [
+export const defaultColumn: Array<ColumnDef<User>> = [
   {
     accessorKey: "idx",
     header: "순번",

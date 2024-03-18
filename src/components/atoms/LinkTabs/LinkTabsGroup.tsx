@@ -27,10 +27,10 @@ export const TabGroup = ({
       {tabItems.map((item) => (
         <Tab
           key={path + item.name}
-          item={item}
-          path={path}
           description={item.description}
+          item={item}
           parallelRoutesKey={parallelRoutesKey}
+          path={path}
         />
       ))}
     </div>

@@ -1,37 +1,34 @@
-"use client"; // 클라이언트 측에서 사용되는 코드임을 명시
+'use client'; // 클라이언트 측에서 사용되는 코드임을 명시
 
-import React, { ReactNode } from "react";
+import type { ReactNode } from 'react';
+import React from 'react';
 /** recoil의 root 컴포넌트 */
-import { RecoilRoot } from "recoil";
+import { RecoilRoot } from 'recoil';
 
 /** react-query에서 필요한 QueryClient 및 Provider */
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /** react-query의 개발 도구 */
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 /** 유틸리티 함수와 타입 */
-import {
-  fetchC,
-  parseRequestParams,
-  ClientSideFetchOptions,
-  RequestParams,
-} from "@/lib/utils";
+import type { ClientSideFetchOptions, RequestParams } from '@/lib/utils';
+import { fetchC, parseRequestParams } from '@/lib/utils';
 
 type Props = {
   children: ReactNode;
 };
 
-export default function Provider({ children }: Props) {
+const Provider = ({ children }: Props) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         queryFn: async (context) => {
           const options: ClientSideFetchOptions = {
-            endpoint: "",
+            endpoint: '',
             // token: token,
             ...(parseRequestParams(
-              context.queryKey as Partial<RequestParams>[],
+              context.queryKey as Array<Partial<RequestParams>>
             ) as RequestParams),
           };
           return fetchC(options); // fetchC 함수를 사용하여 데이터를 가져옴
@@ -45,7 +42,9 @@ export default function Provider({ children }: Props) {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>{children}</RecoilRoot>
-      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+      <ReactQueryDevtools buttonPosition="bottom-right" initialIsOpen={false} />
     </QueryClientProvider>
   );
-}
+};
+
+export default Provider;

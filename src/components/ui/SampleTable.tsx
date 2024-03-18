@@ -1,16 +1,16 @@
-"use client"; // React Client 컴포넌트 임을 명시
+'use client'; // React Client 컴포넌트 임을 명시
 
 /** 필수 React 훅과 아이콘 라이브러리 */
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 import {
   RxDoubleArrowLeft,
   RxDoubleArrowRight,
   RxChevronLeft,
   RxChevronRight,
-} from "react-icons/rx";
+} from 'react-icons/rx';
 
 /** UI 컴포넌트들 */
-import { Button } from "@/components/atoms/Button";
+import { Button } from '@/components/atoms/Button';
 import {
   Table,
   TableBody,
@@ -18,37 +18,37 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/atoms/Table";
+} from '@/components/atoms/Table';
 import {
   Select,
   SelectValue,
   SelectTrigger,
   SelectContent,
   SelectItem,
-} from "@/components/atoms/Select";
-import { FunctionToolbar } from "@/components/ui/FunctionButtons";
+} from '@/components/atoms/Select';
+import { FunctionToolbar } from '@/components/ui/FunctionButtons';
 
 /** 데이터를 가져오는데 사용되는 react-query 훅 */
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 
 /** Headless react-table 관련 라이브러리 */
+import type { Table as TableType } from '@tanstack/react-table';
 import {
-  Table as TableType,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 /** Prisma의 User 모델 */
-import { User } from "@prisma/client";
+import type { User } from '@prisma/client';
 
 /** 사전 정의한 컬럼 설정 정보 */
-import { defaultColumn } from "@/components/ui/SampleColumnDef";
+import { defaultColumn } from '@/components/ui/SampleColumnDef';
 
 /** Recoil 상태 관리 훅과 정의한 atom */
-import { useRecoilState } from "recoil";
-import { sampleTableState } from "@/components/store/SampleTableState";
+import { useRecoilState } from 'recoil';
+import { sampleTableState } from '@/components/store/SampleTableState';
 
 // Props와 UserData 타입을 정의
 type Props = {
@@ -63,19 +63,19 @@ type UserData = {
 };
 
 // SampleTable 컴포넌트를 정의
-export function SampleTable({ initialData }: Props) {
+export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { rows, pageSize, pageIndex } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
-    useQuery<UserData>(
-      {queryKey:[
+    useQuery<UserData>({
+      queryKey: [
         {
-          endpoint: "users",
+          endpoint: 'users',
           queryParams: {
             page: pageIndex,
             limit: pageSize,
-            sort: "createdAt",
-            order: "desc",
+            sort: 'createdAt',
+            order: 'desc',
           },
         },
       ],
@@ -112,18 +112,18 @@ export function SampleTable({ initialData }: Props) {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
-  let notice = "";
+  const notice = '';
   const EMPTY_ROWS = 10;
-  const LOADING_MESSAGE = "데이터를 불러오고 있습니다.";
-  const ERROR_MESSAGE = "데이터를 찾을 수 없습니다.";
-  const NO_DATA_MESSAGE = "데이터가 없습니다. 데이터를 생성 해주세요.";
+  const LOADING_MESSAGE = '데이터를 불러오고 있습니다.';
+  const ERROR_MESSAGE = '데이터를 찾을 수 없습니다.';
+  const NO_DATA_MESSAGE = '데이터가 없습니다. 데이터를 생성 해주세요.';
 
   // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
   function renderDataStatusMessage(
     isFetching: boolean,
     isLoading: boolean,
     isError: boolean,
-    rows: User[],
+    rows: User[]
   ): string | null {
     if (isFetching || isLoading) return LOADING_MESSAGE;
     if (isError) return ERROR_MESSAGE;
@@ -134,7 +134,7 @@ export function SampleTable({ initialData }: Props) {
     isFetching,
     isLoading,
     isError,
-    data.rows,
+    data.rows
   );
 
   if (statusMessage || data.rows.length === 0)
@@ -146,12 +146,12 @@ export function SampleTable({ initialData }: Props) {
             <SampleTableHeader table={table} />
             <TableBody className="h-96 overflow-y-auto">
               {[...Array(EMPTY_ROWS)].map((_, index) => (
-                <TableRow className="border-b-0 " key={index}>
+                <TableRow key={index} className="border-b-0 ">
                   <TableCell
                     className="my-auto items-center text-center"
                     colSpan={defaultColumn.length}
                   >
-                    {index === 2 ? statusMessage : "ㅤ"}
+                    {index === 2 ? statusMessage : 'ㅤ'}
                   </TableCell>
                 </TableRow>
               ))}
@@ -173,11 +173,11 @@ export function SampleTable({ initialData }: Props) {
       <TablePageController />
     </div>
   );
-}
-SampleTable.displayName = "SampleTable";
+};
+SampleTable.displayName = 'SampleTable';
 
 // 테이블 헤더 부분을 렌더링하는 컴포넌트
-function SampleTableHeader({ table }: { table: TableType<User> }) {
+const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
   return (
     <TableHeader className="sticky top-0 bg-gray-700 text-white dark:bg-slate-800">
       {table.getHeaderGroups().map((headerGroup) => (
@@ -185,15 +185,15 @@ function SampleTableHeader({ table }: { table: TableType<User> }) {
           {headerGroup.headers.map((header) => {
             return (
               <TableHead
-                className="text-center"
                 key={header.id}
+                className="text-center"
                 colSpan={header.colSpan}
               >
                 {header.isPlaceholder ? null : (
                   <div>
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext(),
+                      header.getContext()
                     )}
                   </div>
                 )}
@@ -204,10 +204,10 @@ function SampleTableHeader({ table }: { table: TableType<User> }) {
       ))}
     </TableHeader>
   );
-}
+};
 
 // 테이블 바디 부분을 렌더링하는 컴포넌트
-function SampleTableBody({ table }: { table: TableType<User> }) {
+const SampleTableBody = ({ table }: { table: TableType<User> }) => {
   return (
     <TableBody className="h-96 overflow-y-auto">
       {table.getRowModel().rows.map((row) => {
@@ -225,53 +225,53 @@ function SampleTableBody({ table }: { table: TableType<User> }) {
       })}
     </TableBody>
   );
-}
+};
 
 // 테이블의 페이지네이션을 제어하는 컴포넌트
-export function TablePageController() {
+export const TablePageController = () => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { count, pageIndex, pageSize, pageCount } = tableState;
   return (
     <div className="flex w-full items-center justify-between gap-2">
-      <div>총 {count.toLocaleString("ko-KR")} 항목</div>
+      <div>총 {count.toLocaleString('ko-KR')} 항목</div>
       <div className="flex gap-2">
         <Button
           className="rounded border p-1 shadow-none"
-          onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
           disabled={pageIndex === 0}
+          onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
         >
           <RxDoubleArrowLeft size={20} />
         </Button>
         <Button
           className="rounded border p-1 shadow-none"
+          disabled={pageIndex === 0}
           onClick={() =>
             setTableState((prev) => ({ ...prev, pageIndex: pageIndex - 1 }))
           }
-          disabled={pageIndex === 0}
         >
           <RxChevronLeft size={20} />
         </Button>
         <span className="flex items-center gap-1">
           <p>
-            <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{" "}
+            <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{' '}
             <strong>{pageIndex + 1}</strong> 페이지
           </p>
         </span>
         <Button
           className="rounded border p-1 shadow-none"
+          disabled={pageIndex === pageCount - 1}
           onClick={() =>
             setTableState((prev) => ({ ...prev, pageIndex: pageIndex + 1 }))
           }
-          disabled={pageIndex === pageCount - 1}
         >
           <RxChevronRight size={20} />
         </Button>
         <Button
           className="rounded border p-1 shadow-none"
+          disabled={pageIndex === pageCount - 1}
           onClick={() =>
             setTableState((prev) => ({ ...prev, pageIndex: pageCount - 1 }))
           }
-          disabled={pageIndex === pageCount - 1}
         >
           <RxDoubleArrowRight size={20} />
         </Button>
@@ -299,5 +299,5 @@ export function TablePageController() {
       </Select>
     </div>
   );
-}
-TablePageController.displayName = "TablePageController";
+};
+TablePageController.displayName = 'TablePageController';

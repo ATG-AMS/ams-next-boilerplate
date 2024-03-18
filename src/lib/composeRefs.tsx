@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 /**
  * 여러 개의 React ref를 하나의 ref로 조합하는 유틸리티입니다.
  * React의 ref는 일반적으로 컴포넌트의 DOM 요소나 클래스 컴포넌트 인스턴스에 직접적인 접근을 할 수 있도록 해줍니다.
@@ -12,7 +12,7 @@ type PossibleRef<T> = React.Ref<T> | undefined;
  * 이 유틸리티는 콜백 ref와 RefObject를 모두 처리합니다.
  */
 function setRef<T>(ref: PossibleRef<T>, value: T) {
-  if (typeof ref === "function") {
+  if (typeof ref === 'function') {
     ref(value);
   } else if (ref !== null && ref !== undefined) {
     (ref as React.MutableRefObject<T>).current = value;
@@ -23,7 +23,7 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
  * 여러 ref를 하나로 조합하는 유틸리티입니다.
  * 콜백 ref와 RefObject를 모두 받아들입니다.
  */
-function composeRefs<T>(...refs: PossibleRef<T>[]) {
+function composeRefs<T>(...refs: Array<PossibleRef<T>>) {
   return (node: T) => refs.forEach((ref) => setRef(ref, node));
 }
 
@@ -31,7 +31,7 @@ function composeRefs<T>(...refs: PossibleRef<T>[]) {
  * 여러 ref를 조합하는 사용자 정의 훅입니다.
  * 콜백 ref와 RefObject를 모두 받아들입니다.
  */
-function useComposedRefs<T>(...refs: PossibleRef<T>[]) {
+function useComposedRefs<T>(...refs: Array<PossibleRef<T>>) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return React.useCallback(composeRefs(...refs), refs);
 }

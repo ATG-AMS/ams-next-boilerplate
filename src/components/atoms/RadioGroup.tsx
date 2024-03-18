@@ -32,7 +32,7 @@ const RadioGroupItem = React.forwardRef<
       )}
       {...props}
     >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center"></RadioGroupPrimitive.Indicator>
+      <RadioGroupPrimitive.Indicator className="flex items-center justify-center" />
     </RadioGroupPrimitive.Item>
   );
 });

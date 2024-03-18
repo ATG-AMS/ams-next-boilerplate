@@ -1,8 +1,8 @@
-"use client"; // React Client 컴포넌트 임을 명시
+'use client'; // React Client 컴포넌트 임을 명시
 
 /** 필수 React 훅과 아이콘 라이브러리 */
-import React, { useRef } from "react";
-import { RxPencil1 } from "react-icons/rx";
+import React, { useRef } from 'react';
+import { RxPencil1 } from 'react-icons/rx';
 
 /** UI 컴포넌트들 */
 import {
@@ -14,22 +14,22 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-} from "@/components/atoms/Dialog";
-import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
-import { Input } from "@/components/atoms/Input";
+} from '@/components/atoms/Dialog';
+import { Button } from '@/components/atoms/Button';
+import { Label } from '@/components/atoms/Label';
+import { Input } from '@/components/atoms/Input';
 
 /** 폼 핸들링을 위한 react-hook-form 라이브러리의 Hook */
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 
 /** Prisma의 User 모델 */
-import { User } from "@prisma/client";
+import type { User } from '@prisma/client';
 
 /** 데이터 페치 및 상태 관리 라이브러리 */
-import { useMutation } from "@tanstack/react-query";
-import { fetchC } from "@/lib/utils";
-import { useRecoilValue } from "recoil";
-import { sampleTableState } from "@/components/store/SampleTableState";
+import { useMutation } from '@tanstack/react-query';
+import { fetchC } from '@/lib/utils';
+import { useRecoilValue } from 'recoil';
+import { sampleTableState } from '@/components/store/SampleTableState';
 
 // 입력 필드의 props 타입 정의
 type InputFieldProps = {
@@ -52,12 +52,12 @@ const InputField = ({
     <Label htmlFor={name}>{label}</Label>
     <Input
       {...(register ? register(name) : {})}
-      type="text"
-      name={name}
-      id={name}
       className="border"
       defaultValue={defaultValue}
       disabled={disabled}
+      id={name}
+      name={name}
+      type="text"
     />
   </div>
 );
@@ -68,7 +68,7 @@ type ModifyDialogProps = {
 };
 
 // 사용자 정보 수정 다이얼로그 컴포넌트 정의
-export default function ModifyDialog({ user }: ModifyDialogProps) {
+const ModifyDialog = ({ user }: ModifyDialogProps) => {
   const { refetch } = useRecoilValue(sampleTableState);
   const { idx, name, email, age, visits, progress, status } = user;
 
@@ -92,7 +92,7 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
   const onSubmit = (data: any) => {
     mutate({
       endpoint: `users`,
-      method: "PUT",
+      method: 'PUT',
       body: { ...data, idx, status, name },
     });
   };
@@ -102,7 +102,7 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
     <Dialog>
       <DialogTrigger>
         <RxPencil1
-          className={"cursor-pointer transition-all hover:ease-in-out"}
+          className={'cursor-pointer transition-all hover:ease-in-out'}
           size={20}
         />
       </DialogTrigger>
@@ -112,36 +112,36 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
         </DialogHeader>
         <form>
           <DialogDescription className="flex flex-col gap-2">
-            <InputField name="name" label="이름" defaultValue={name} disabled />
+            <InputField disabled defaultValue={name} label="이름" name="name" />
             <InputField
-              name="email"
-              label="이메일"
               defaultValue={email}
+              label="이메일"
+              name="email"
               register={register}
             />
             <InputField
-              name="age"
-              label="나이"
               defaultValue={age}
+              label="나이"
+              name="age"
               register={register}
             />
             <InputField
-              name="visits"
-              label="방문횟수"
               defaultValue={visits}
+              label="방문횟수"
+              name="visits"
               register={register}
             />
             <InputField
-              name="progress"
-              label="진행률"
               defaultValue={progress}
+              label="진행률"
+              name="progress"
               register={register}
             />
             <InputField
-              name="status"
-              label="상태"
-              defaultValue={status}
               disabled
+              defaultValue={status}
+              label="상태"
+              name="status"
             />
           </DialogDescription>
           <DialogFooter className="mt-2">
@@ -151,7 +151,7 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
             >
               저장
             </Button>
-            <DialogClose className="hover:bg-green-100" ref={closeRef}>
+            <DialogClose ref={closeRef} className="hover:bg-green-100">
               취소
             </DialogClose>
           </DialogFooter>
@@ -159,4 +159,6 @@ export default function ModifyDialog({ user }: ModifyDialogProps) {
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default ModifyDialog;

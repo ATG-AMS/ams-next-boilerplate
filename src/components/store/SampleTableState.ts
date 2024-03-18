@@ -1,7 +1,7 @@
-"use client"; // React Client 컴포넌트 임을 명시
+'use client'; // React Client 컴포넌트 임을 명시
 
-import { User } from "@prisma/client"; // Prisma 클라이언트에서 User 타입
-import { atom } from "recoil"; // Recoil에서 상태를 정의할 atom을 가져옴
+import type { User } from '@prisma/client'; // Prisma 클라이언트에서 User 타입
+import { atom } from 'recoil'; // Recoil에서 상태를 정의할 atom을 가져옴
 
 // 테이블 상태를 나타내는 인터페이스를 선언
 export interface ISampleTableState {
@@ -15,7 +15,7 @@ export interface ISampleTableState {
 
 // 위에서 정의한 인터페이스를 기반으로 Recoil 상태(atom)를 생성
 export const sampleTableState = atom<ISampleTableState>({
-  key: "sampleTableState", // Recoil atom의 고유 키
+  key: 'sampleTableState', // Recoil atom의 고유 키
   default: {
     // 초기값
     rows: [],
