@@ -9,8 +9,8 @@ dependencies:
     specifier: ^8.0.2
     version: 8.4.1
   '@prisma/client':
-    specifier: ^5.3.0
-    version: 5.10.2(prisma@5.11.0)
+    specifier: ^5.11.0
+    version: 5.11.0(prisma@5.11.0)
   '@radix-ui/react-dialog':
     specifier: ^1.0.4
     version: 1.0.5(@types/react-dom@18.2.21)(@types/react@18.2.70)(react-dom@18.2.0)(react@18.2.0)
@@ -608,8 +608,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@prisma/client@5.10.2(prisma@5.11.0):
-    resolution: {integrity: sha512-ef49hzB2yJZCvM5gFHMxSFL9KYrIP9udpT5rYo0CsHD4P9IKj473MbhU1gjKKftiwWBTIyrt9jukprzZXazyag==}
+  /@prisma/client@5.11.0(prisma@5.11.0):
+    resolution: {integrity: sha512-SWshvS5FDXvgJKM/a0y9nDC1rqd7KG0Q6ZVzd+U7ZXK5soe73DJxJJgbNBt2GNXOa+ysWB4suTpdK5zfFPhwiw==}
     engines: {node: '>=16.13'}
     requiresBuild: true
     peerDependencies:
