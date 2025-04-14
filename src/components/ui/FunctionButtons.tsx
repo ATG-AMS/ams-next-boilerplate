@@ -3,7 +3,7 @@
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
@@ -11,7 +11,8 @@ import { Label } from '@/components/atoms/Label';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
-
+import { createUserAction } from '@/lib/userAction';
+import { VscLoading } from "react-icons/vsc";
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
@@ -45,33 +46,90 @@ type Props = {
 // 데이터를 생성하는 컴포넌트
 export const GenerateData = ({ className, refetch, syncState }: Props) => {
   const { register, handleSubmit } = useForm();
-  const { mutate, status } = useMutation({ mutationFn: fetchC });
+  const [progress, setProgress] = useState(0);
+  const [total, setTotal] = useState(0);
 
-  // 더미 데이터를 생성하고 API에 데이터를 전송하는 함수
-  const handleGenerateData = async (inputValue: Record<string, unknown>) => {
-    try {
-      const { rows } = inputValue;
-      const dummyData: Person[] = makeData(rows as number);
-      dummyData.forEach((person) => {
-        mutate({
-          endpoint: 'users',
-          method: 'POST',
-          body: person,
-        });
-      });
-    } catch (error) {
-      console.error('Error generating data:', error);
-    }
-  };
+  // Single mutation for all operations
+  const { mutate, isPending } = useMutation({
+    // The mutation function now handles batched operations
+    mutationFn: async (data: { persons: Person[] }) => {
+      const { persons } = data;
+      setProgress(0);
+      setTotal(persons.length);
 
-  // 데이터 생성이 성공한 후 상태를 동기화하고 데이터를 다시 가져오는 Hook
-  useEffect(() => {
-    if (status === 'success') {
+      // Track completed requests
+      let completed = 0;
+
+      // Process all requests in parallel and wait for all to complete
+      await Promise.all(
+        persons.map(async (person) => {
+          try {
+            //mutation : method 1
+            // await fetch(`${process.env.NEXT_PUBLIC_API_URI}/users`, {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify(person),
+            // }).then((res) => {
+            //   if (!res.ok) {
+            //     throw new Error('Network response was not ok');
+            //   }
+            // completed++;
+            // setProgress(completed);
+            // })
+            //mutation : method 2
+            // Make the API call for each person
+            // await fetchC({
+            //   endpoint: 'users',
+            //   method: 'POST',
+            //   body: person,
+            // });
+            //mutation : method 3
+            //using ServerActions
+            const result = await createUserAction(person, completed);
+            completed = result.completed
+
+
+          } catch (error) {
+            console.error('Error creating person:', error);
+            throw error; // Re-throw to mark the overall operation as failed
+          } finally {
+            setProgress(completed)
+          }
+        })
+      );
+
+      // Return something to indicate success
+      return { success: true, count: persons.length };
+    },
+    // When the entire batch operation succeeds
+    onSuccess: () => {
       syncState();
       refetch();
+    },
+    // Handle any errors in the batch operation
+    onError: (error) => {
+      console.error('Error in batch operation:', error);
+      alert('데이터 생성 중 오류가 발생했습니다.');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  });
+
+  const handleGenerateData = (inputValue: Record<string, unknown>) => {
+    try {
+      const { rows } = inputValue;
+      const numberOfRows = rows as number;
+
+      // Generate dummy data
+      const dummyData: Person[] = makeData(numberOfRows);
+
+      // Pass the entire array to the mutation function
+      mutate({ persons: dummyData });
+    } catch (error) {
+      console.error('Error generating data:', error);
+      alert('데이터 생성 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <form className={cn('flex items-center ', className)}>
@@ -89,9 +147,13 @@ export const GenerateData = ({ className, refetch, syncState }: Props) => {
       />
       <Button
         className="text-lg shadow-none"
+        disabled={isPending}
         onClick={handleSubmit(handleGenerateData)}
       >
-        생성
+        {isPending ?
+          <><span>{'생성중...'}</span><span className='animate-spin'><VscLoading /></span></> :
+          '생성'
+        }
       </Button>
     </form>
   );
