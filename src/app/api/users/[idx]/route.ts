@@ -1,39 +1,26 @@
-//src/app/api/users/[idx]/route.ts
+// src/app/api/users/[idx]/route.ts
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  // request: Request,
-  _: Request,
-  { params }: { params: { idx: string } }
-) {
-  const idx = Number(params.idx);
+export async function GET(_: Request, { params }: { params: { idx: string } }) {
+  const idx = parseInt(params.idx, 10);
 
   if (isNaN(idx)) {
-    return new NextResponse(JSON.stringify({ error: "Invalid ID" }), {
-      status: 400,
-    });
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
   try {
     const user = await prisma.user.findUnique({
-      where: { idx: idx },
+      where: { idx },
     });
 
     if (!user) {
-      return new NextResponse(JSON.stringify({ error: "User not found" }), {
-        status: 404,
-      });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return new NextResponse(JSON.stringify(user), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(user);
   } catch (error) {
-    return new NextResponse(JSON.stringify({ error: "Server error" }), {
-      status: 500,
-    });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
