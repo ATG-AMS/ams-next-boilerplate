@@ -2,6 +2,8 @@
 
 /** 필수 React 훅과 아이콘 라이브러리 */
 import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   RxDoubleArrowLeft,
   RxDoubleArrowRight,
@@ -208,11 +210,20 @@ const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
 
 // 테이블 바디 부분을 렌더링하는 컴포넌트
 const SampleTableBody = ({ table }: { table: TableType<User> }) => {
+
+  const router = useRouter();
+
   return (
     <TableBody className="h-96 overflow-y-auto">
       {table.getRowModel().rows.map((row) => {
+        const idx = row.original.idx;
+        
         return (
-          <TableRow key={row.id}>
+          <TableRow 
+            key={row.id}
+            className="cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => router.push(`/users/${idx}`)}
+          >
             {row.getVisibleCells().map((cell) => {
               return (
                 <TableCell key={cell.id}>
