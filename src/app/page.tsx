@@ -126,6 +126,23 @@ const Home = async () => {
             데이터베이스를 위한 모던한 Node.js ORM입니다.
           </p>
         </a>
+
+        <a
+          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          href="/user"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <h2 className={`mb-3 text-2xl font-semibold`}>
+            User Information{' '}
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+              -&gt;
+            </span>
+          </h2>
+          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
+            사용자 조회 페이지입니다.
+          </p>
+        </a>
       </div>
     </main>
   );
