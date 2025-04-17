@@ -5,6 +5,7 @@ import { Slot } from "@/components/atoms/Slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
+  //cva 라이브러리로 tailwindcss 클래스 조합을 variant 별로 관리하는 시스템)
   "focus-visible:ring-ring inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {

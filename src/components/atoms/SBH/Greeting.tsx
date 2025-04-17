@@ -3,11 +3,13 @@ import {useState,useEffect} from 'react';
 
 
 export default function Greeting({data}:{data:string}){
-    const [gdata,setData] = useState(data);
-    
-    // useEffect(() => {
-    //     setMyname(name); // name이 바뀔 때만 실행됨
-    //   }, [name]);
+    const [gdata, setData] = useState(data);
 
-    return gdata
+    useEffect(() => {
+      setData(data); // props가 바뀔 때마다 내부 상태도 갱신
+    }, [data]);
+  
+    return <>{gdata}</>;
+
+    // return <>{data}</>
 }

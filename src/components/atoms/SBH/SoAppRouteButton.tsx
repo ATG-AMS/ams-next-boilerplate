@@ -9,6 +9,14 @@ export default function SoButton() {
   const handleClick = () => {
     router.push('/so');
   };
+  
+  const handleAPITest = async()=>{
+    const res = await fetch('api/sbh')
+    console.log(res)
+    const data = await res.json();
+
+    console.log("응답 데이터:", data); // ← 여기서 users 데이터 확인 가능
+  }
   return (
     <>
       <Button onClick={handleClick}>
@@ -16,6 +24,9 @@ export default function SoButton() {
       </Button>
       <Button onClick={() => router.push('/so')}>
         인라인 전달 방식 
+      </Button>
+      <Button onClick={handleAPITest}>
+        API ROUTE 테스트
       </Button>
     </>
   );
