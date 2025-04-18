@@ -1,4 +1,4 @@
-// src/components/UserInfo.tsx
+// src/app/user/[idx]/_components/UserInfo.tsx
 
 'use client';
 
@@ -32,11 +32,11 @@ export default function UserInfo({ idx }: { idx: number }) {
   }, [idx]);
 
   if (error) return <p className="text-red-500">⚠ {error}</p>;
-  if (!user) return <p>불러오는 중...</p>;
+  if (!user) return <p>정보를 불러오는 중...</p>;
 
   return (
     <div className="p-4 border rounded-md">
-      <h2 className="text-xl font-semibold mb-2">{user.name} 님의 정보 입니다.</h2>
+      <h2 className="text-xl font-semibold mb-2">{user.name} 님의 프로필</h2>
       <p><strong>이름:</strong> {user.name}</p>
       <p><strong>이메일:</strong> {user.email}</p>
       <p><strong>나이:</strong> {user.age}</p>
@@ -44,3 +44,4 @@ export default function UserInfo({ idx }: { idx: number }) {
     </div>
   );
 }
+
