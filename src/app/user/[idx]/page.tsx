@@ -1,7 +1,7 @@
-// src/app/users/[idx]/page.tsx
+// src/app/user/[idx]/page.tsx
 
 import { notFound } from "next/navigation";
-import UserInfo from "@/components/UserInfo";
+import UserInfo from "./_component/UserInfo";
 
 type Props = {
   params: {

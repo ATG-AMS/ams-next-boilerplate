@@ -222,7 +222,7 @@ const SampleTableBody = ({ table }: { table: TableType<User> }) => {
           <TableRow 
             key={row.id}
             className="cursor-pointer hover:bg-gray-100 transition-colors"
-            onClick={() => router.push(`/users/${idx}`)}
+            onClick={() => router.push(`/user/${idx}`)}
           >
             {row.getVisibleCells().map((cell) => {
               return (
