@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { SUIT } from '@/lib/utils';
 import Provider from '@/lib/Provider';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -13,6 +14,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <body className={SUIT.className}>
         <Provider>{children}</Provider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

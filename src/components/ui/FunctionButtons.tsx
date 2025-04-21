@@ -11,9 +11,12 @@ import { Label } from '@/components/atoms/Label';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { useState } from 'react';
+import { CreateUserModal } from '@/app/user/_component/CreateUserModal';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { refetch } = tableState;
 
@@ -29,7 +32,12 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
         refetch={refetch}
         syncState={resetToFirstPage}
       />
+      <Button onClick={() => setIsModalOpen(true)}>수동 생성</Button>
       <ResetButton refetch={refetch} syncState={resetToFirstPage} />
+
+      {isModalOpen && (
+        <CreateUserModal onClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 };
