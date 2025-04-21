@@ -3,7 +3,7 @@
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
@@ -11,6 +11,11 @@ import { Label } from '@/components/atoms/Label';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import SBHModal from '@/app/sbh/_components/SBHModal';
+import {useQuery} from '@tanstack/react-query';
+
+
+
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
@@ -29,7 +34,9 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
         refetch={refetch}
         syncState={resetToFirstPage}
       />
-      <ResetButton refetch={refetch} syncState={resetToFirstPage} />
+      <ResetButton className="border-r border-gray-400 rounded-none" refetch={refetch} syncState={resetToFirstPage} />
+      <GenerateFormButton className="border-r border-gray-400 rounded-none" refetch={refetch} syncState={resetToFirstPage} />
+      <GetDataDB className="ml-4"  refetch={refetch} syncState={resetToFirstPage} />
     </div>
   );
 };
@@ -125,3 +132,114 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
     </Button>
   );
 };
+
+
+
+/**
+ * 모달 열기 버튼 + 모달 제어 컴포넌트
+ */
+export const GenerateFormButton = ({className}:Props) => {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <Button 
+        className={cn('text-lg shadow-none', className)}
+        onClick={() => setShowModal(true)}>수동 생성</Button>
+        {/*
+          && 연산자는 short-circuit evaluation (단락 평가) 방식으로
+          showModal이 true일 때만 뒤의 JSX(SBHModal)가 실행됨
+        */}
+      {showModal && (
+        <SBHModal
+          /**
+           * 모달 컴포넌트에 닫기용 콜백 전달
+           * → 닫기 버튼 클릭 시 setShowModal(false) 호출됨
+           */
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export const GetDataDB=({className}:Props)=>{
+
+  const [userId, setUserId] = useState('');
+  const [enabled, setEnabled] = useState(false);
+
+  const {
+    data: user,
+    isFetching,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: async () => {
+      const res = await fetch(`/api/user/${userId}`);
+      if (!res.ok) throw new Error('유저를 찾을 수 없습니다.');
+      return res.json();
+    },
+    enabled: false, // 자동 실행 막기
+  });
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userId.trim() === '') return;
+    setEnabled(true);
+    refetch();
+  };
+
+  // return(
+  //   <>
+  //     <form className={cn('flex items-center ', className)}>
+  //       <Label className="items-start" htmlFor="rows">
+  //         조회할 것 :
+  //       </Label>
+  //       <Input
+  //         className="w-24 bg-gray-200 shadow-2xl dark:bg-transparent"
+  //         placeholder="ID혹은Email"
+  //         onChange={(e) => setUserId(e.target.value)}
+  //       />
+  //       <Button
+  //         className="text-lg shadow-none"
+  //       >
+  //         조회
+  //       </Button>
+  //     </form>
+      
+  //   </>
+  // )
+
+  return (
+    <form onSubmit={handleSearch} className={cn('flex items-center', className)}>
+      <Label htmlFor="searchId" className="mr-2">
+        조회할 것 :
+      </Label>
+      <Input
+        id="searchId"
+        className="w-32 bg-gray-200 shadow-2xl dark:bg-transparent"
+        placeholder="ID"
+        value={userId}
+        onChange={(e) => setUserId(e.target.value)}
+      />
+      <Button type="submit" className="text-lg shadow-none ml-2">
+        조회
+      </Button>
+
+      {/* 결과 출력 */}
+      {isFetching && <p className="ml-4 text-sm text-gray-500">조회 중...</p>}
+      {isError && <p className="ml-4 text-sm text-red-500">유저를 찾을 수 없습니다.</p>}
+      {user && (
+        <div className="ml-4 text-sm text-gray-700">
+          <p><strong>이름:</strong> {user.name}</p>
+          <p><strong>이메일:</strong> {user.email}</p>
+          <p><strong>나이:</strong> {user.age}</p>
+        </div>
+      )}
+    </form>
+  );
+
+}
+
+

@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker";
 export type Person = {
   name: string;
   email: string;
-  age: number;
+  age?: number;
   visits: number;
   progress: number;
   status: "relationship" | "complicated" | "single";

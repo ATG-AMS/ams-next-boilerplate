@@ -1,8 +1,7 @@
 import { SampleTable } from '@/components/ui/SampleTable';
 import { prisma } from '@/lib/prisma';
 import Image from 'next/image';
-import SoAppRouteButton from '@/components/atoms/SBH/SoAppRouteButton';
-
+import SoAppRouteButton from '@/app/sbh/_components/SoAppRouteButton'
 
 
 const Home = async () => {
@@ -135,7 +134,7 @@ const Home = async () => {
         {/* <Button asChild variant="outline"> */}
         <a
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          href="/so"
+          href="/sbh"
           rel="noopener noreferrer"
           target="_blank"
         >
@@ -149,7 +148,7 @@ const Home = async () => {
             소병학의 테스트 페이지입니다.
           </p>
         </a>
-        {/* </Button> */}
+    
         
 
       </div>

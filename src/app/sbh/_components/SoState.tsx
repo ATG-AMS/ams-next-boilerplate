@@ -5,14 +5,29 @@ import {useState} from 'react';
 import Greeting from '@/app/sbh/_components/Greeting';
 
 
+// type A ={
+//     a:Number;
+// }
+
+// type B ={
+//     a:Number;
+//     b:string;
+// }
+
+// type isAasB = B extends A ? true : false;
 export default function SoStatePage(){
-    const [name, setName] = useState('소병학');
+    // const test:B={
+    //     a:1,
+    //     b:"D"
+    // }
+    const [name, setName] = useState("소병학");
     const [age, setAge] = useState(26);
 
     
+
     return(
         <>
-            
+
             <Input className="w-20"
                 value={name}
                 onChange={e=> setName(e.target.value)}
