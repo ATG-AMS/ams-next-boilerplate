@@ -3,7 +3,10 @@
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
@@ -30,6 +33,7 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
         syncState={resetToFirstPage}
       />
       <ResetButton refetch={refetch} syncState={resetToFirstPage} />
+      <ManualAddData refetch={refetch} syncState={resetToFirstPage} />
     </div>
   );
 };
@@ -124,4 +128,155 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
       초기화
     </Button>
   );
+};
+
+//(온보딩) 데이터 직접 추가 요청을 보내는 함수
+export const ManualAddData = ({ className, refetch, syncState }: Props) => {
+
+  const formSchema = z.object({
+    name: z
+      .string().trim().min(2, { message: '2자 이상 입력하세요.' }),
+    email: z
+      .string()
+      .email({ message: '이메일 형식이 아닙니다.' })
+      .nonempty({ message: '이메일은 필수입니다.' }),
+      age: z
+      .number({
+        invalid_type_error: '숫자만 입력해주세요.'})
+      .min(1, { message: '1 이상이어야 합니다.' }) 
+      .optional(),
+    visits: z.number().optional(),
+    progress: z.number().optional(),
+    status: z.string().optional()
+    //.nullable()
+  })
+
+  type FormData = z.infer<typeof formSchema>;
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange'
+  });
+
+  const onSubmit = (data: FormData) => {
+    postUserData(data);
+    setIsOpen(false);
+    reset();
+  };
+
+  //TODO : useMutate 활용
+  const postUserData = async (data: FormData) => {
+
+    const newData = {
+      ...data,
+      name: data.name.replace(/\s+/g, ""),
+      age: data.age ?? 0,
+      visits: data.visits ?? 0,
+      progress: data.progress ?? 0,
+      status: data.status ?? '',
+    };
+
+    console.log('입력한 data:', newData);
+
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newData),
+    });
+
+    if (!response.ok) {
+      throw new Error('데이터 직접 추가 실패');
+    }
+    refetch();
+    return response.json();
+  };
+
+  return (
+    <>
+      <Button
+        className={cn('text-lg shadow-none')}
+        onClick={() => setIsOpen(true)}>+ 직접 입력
+      </Button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="rounded-xl bg-white p-7 shadow-xl w-[25%]">
+            <h2 className="text-xl font-bold mb-4">데이터 직접 입력</h2>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+              <div>
+                <label className="block mb-1 font-medium">
+                  이름 <span className="text-orange-500 font-bold">*</span>
+                </label>
+                <input
+                  placeholder='예) 홍길동'
+                  {...register('name')}
+                  className={cn(
+                    'w-full rounded border px-3 py-3 text-lg',
+                    errors.name && 'border-red-500'
+                  )}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name?.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  이메일 <span className="text-orange-500 font-bold">*</span>
+                </label>
+                <input
+                  placeholder='예) abc@email.com'
+                  {...register('email')}
+                  className={cn(
+                    'w-full rounded border px-3 py-3 text-lg',
+                    errors.email && 'border-red-500'
+                  )}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">나이</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    placeholder="예) 23"
+                    {...register('age', {
+                      setValueAs: (value) => value === '' ? undefined : Number(value),
+                    })}
+                    className={cn(
+                      'w-24 rounded border px-3 py-2 text-lg',
+                      errors.age && 'border-red-500'
+                    )}
+                  />
+                  <span className="text-lg text-gray-700">세</span>
+                </div>
+                {errors.age && (
+                  <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsOpen(false);
+                    reset();
+                  }}
+                >
+                  취소
+                </Button>
+                <Button type="submit" variant="outline" >추가</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
 };
