@@ -68,19 +68,16 @@ type UserData = {
 export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { rows, pageSize, pageIndex } = tableState;
-  const { data, isError, isLoading, isFetching, isFetched, refetch } =
+  const { data, isError, isLoading, isFetching, isFetched, refetch } = 
     useQuery<UserData>({
-      queryKey: [
-        {
-          endpoint: 'users',
-          queryParams: {
-            page: pageIndex,
-            limit: pageSize,
-            sort: 'createdAt',
-            order: 'desc',
-          },
-        },
-      ],
+      queryKey: ['users', pageIndex, pageSize],
+      queryFn: async () => {
+        const res = await fetch(
+          `/api/users?page=${pageIndex}&limit=${pageSize}&sort=createdAt&order=desc`
+        );
+        if (!res.ok) throw new Error('사용자 목록 로딩 실패');
+        return res.json();
+      },
       initialData: initialData || { rows: [], count: 0 },
     });
   useEffect(() => {
