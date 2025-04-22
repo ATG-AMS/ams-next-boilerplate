@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { z } from "zod";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -130,45 +130,72 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
   );
 };
 
+const checkEmail = async (email: string) => {
+  const response = await fetch('/api/check-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error('이메일 중복 확인 실패');
+  }
+
+  // console.log('요청옴:', response.json());  -> 비동기함수는 내부적으로 스트림데이터! 즉 한번 호출하면 끝!
+  return response.json();
+};
+
 //(온보딩) 데이터 직접 추가 요청을 보내는 함수
 export const ManualAddData = ({ className, refetch, syncState }: Props) => {
-
   const formSchema = z.object({
     name: z
-      .string().trim().min(2, { message: '2자 이상 입력하세요.' }),
+      .string()
+      .trim()
+      .min(2, { message: '2자 이상 입력하세요.' }),
     email: z
       .string()
       .email({ message: '이메일 형식이 아닙니다.' })
-      .nonempty({ message: '이메일은 필수입니다.' }),
-      age: z
-      .number({
-        invalid_type_error: '숫자만 입력해주세요.'})
-      .min(1, { message: '1 이상이어야 합니다.' }) 
+      .nonempty(),
+    age: z
+      .number({ invalid_type_error: '숫자만 입력해주세요.' })
+      .min(1, { message: '1이상의 숫자를 입력해주세요' })
       .optional(),
     visits: z.number().optional(),
     progress: z.number().optional(),
-    status: z.string().optional()
-    //.nullable()
-  })
+    status: z.string().optional(),
+  });
 
   type FormData = z.infer<typeof formSchema>;
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); //폼 보여줌 여부
+  const [emailExists, setEmailExists] = useState(false); //이메일 존재 여부
+  const [isEmailChecked, setIsEmailChecked] = useState(false); //이메일 인증 여부 (창 열리자마자 readonly 처리 방지용)
+  const [showVerifyMsg, setShowVerifyMsg] = useState(false);  // 이메일 인증메시지 보여줌 여부
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset
+          , formState: { errors }, getValues } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: 'onChange'
+    mode: 'onChange',
+    shouldFocusError: false,
   });
 
   const onSubmit = (data: FormData) => {
+    if (!isEmailChecked || emailExists) {
+      setShowVerifyMsg(true);
+      return;
+    }
+
     postUserData(data);
     setIsOpen(false);
     reset();
+    setIsEmailChecked(false);
+    setEmailExists(false);
+    setShowVerifyMsg(false);
   };
 
   //TODO : useMutate 활용
   const postUserData = async (data: FormData) => {
-
+    
     const newData = {
       ...data,
       name: data.name.replace(/\s+/g, ""),
@@ -177,8 +204,6 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
       progress: data.progress ?? 0,
       status: data.status ?? '',
     };
-
-    console.log('입력한 data:', newData);
 
     const response = await fetch('/api/users', {
       method: 'POST',
@@ -189,27 +214,76 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
     if (!response.ok) {
       throw new Error('데이터 직접 추가 실패');
     }
+
     refetch();
     return response.json();
   };
 
+  const handleCheckEmail = async (email: string) => {
+    //TODO : 값이 비어있거나 이메일 형식 안맞을 때 분기처리 해야함
+    try {
+      const { isAvailable } = await checkEmail(email);
+      setEmailExists(!isAvailable);
+      setIsEmailChecked(true);
+      setShowVerifyMsg(false);
+    } catch (error) {
+      console.error('이메일 중복 확인 실패:', error);
+      setEmailExists(false);
+      setIsEmailChecked(false);
+    }
+  };
+
   return (
     <>
-      <Button
-        className={cn('text-lg shadow-none')}
-        onClick={() => setIsOpen(true)}>+ 직접 입력
-      </Button>
+      <Button className={cn('text-lg shadow-none')} onClick={() => setIsOpen(true)}>+ 직접 입력</Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="rounded-xl bg-white p-7 shadow-xl w-[25%]">
+          <div className="rounded-xl bg-white p-7 shadow-xl w-[30%]">
             <h2 className="text-xl font-bold mb-4">데이터 직접 입력</h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  이메일 <span className="text-orange-500 font-bold">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    placeholder='예) abc@email.com'
+                    {...register('email')}
+                    readOnly={isEmailChecked && !emailExists}
+                    className={cn(
+                      'w-full rounded border px-3 py-3 text-lg',
+                      (errors.email || emailExists) && 'border-red-500',
+                      isEmailChecked && !emailExists && 'bg-gray-200 cursor-not-allowed'
+                    )}
+                  />
+                  <Button
+                    variant={'ghost'}
+                    type="button"
+                    onClick={() => handleCheckEmail(getValues('email'))}
+                    className="h-[55px] w-[20px]"
+                  >
+                    확 인
+                  </Button>
+                </div>
+                {emailExists && (
+                  <p className="text-red-500 text-sm mt-1">이미 등록된 이메일입니다.</p>
+                )}
+                {!emailExists && isEmailChecked && !errors.email && (
+                  <p className="text-green-600 text-sm mt-1">사용 가능한 이메일입니다.</p>
+                )}
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
+                )}
+              </div>
+
               <div>
                 <label className="block mb-1 font-medium">
                   이름 <span className="text-orange-500 font-bold">*</span>
                 </label>
+
                 <input
                   placeholder='예) 홍길동'
                   {...register('name')}
@@ -220,23 +294,6 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                 />
                 {errors.name && (
                   <p className="text-red-500 text-sm mt-1">{errors.name?.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  이메일 <span className="text-orange-500 font-bold">*</span>
-                </label>
-                <input
-                  placeholder='예) abc@email.com'
-                  {...register('email')}
-                  className={cn(
-                    'w-full rounded border px-3 py-3 text-lg',
-                    errors.email && 'border-red-500'
-                  )}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
                 )}
               </div>
 
@@ -267,16 +324,25 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                   onClick={() => {
                     setIsOpen(false);
                     reset();
+                    setIsEmailChecked(false);
+                    setEmailExists(false);
+                    setShowVerifyMsg(false);
                   }}
                 >
                   취소
                 </Button>
-                <Button type="submit" variant="outline" >추가</Button>
+                <Button type="submit" variant="outline">추가</Button>
               </div>
+
+              {showVerifyMsg && (
+                <p className="text-red-600 text-sm mt-2 text-right font-semibold">
+                  이메일 인증 또는 다른 이메일을 사용해주세요.
+                </p>
+              )}
             </form>
           </div>
         </div>
       )}
     </>
-  )
+  );
 };
