@@ -32,7 +32,9 @@ export const UserInfoWithEmail: React.FC = () => {
     setError(null);
 
     try {
-      const res = await fetch(`/api/user?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`/api/user?email=${email}`);
+      // encodeURIComponent활용하는이유
+      // const res = await fetch(`/api/user?email=${encodeURIComponent(email)}`);
       if (!res.ok) {
         if (res.status === 404) {
           setUser(null);
