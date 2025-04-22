@@ -1,0 +1,26 @@
+/*
+ * [Playground Note]
+ * 이 파일은 기능적인 것은 담당하지 않으나,
+ * 단순히 결과를 예쁘게 보이기 위함이기 때문에 없어도 무방합니다.
+ *
+ * 차후 실제 배포 환경에서는, Figma 디자인 등을 기반으로 전역 스타일이 적용됩니다.
+*/
+
+#user-table-page {
+  /* #1. 크기 및 여백 설정*/
+  width: 100vw;
+  height: 100vh;
+  padding: 20px;
+
+  /* #2. 레이아웃 설정 */
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  box-sizing: border-box;
+
+  /* #3. 색상, 윤곽선 등 설정 */
+  border: none;
+  color: #252830;
+  background-color: #f0f0f0;
+}

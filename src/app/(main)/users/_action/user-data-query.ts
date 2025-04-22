@@ -1,30 +1,11 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-type User = {
-  idx: number;
-  name: string;
-  email: string;
-  age: number;
-  visits: number;
-  progress: number;
-  status: string;
-  createdAt: Date;
-};
-
-interface UsersResponse {
-  rows: User[];
-  count: number;
-}
-
-interface QueryParams {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
-  filter?: string;
-}
+import type {
+  User,
+  UsersResponse,
+  UsersQueryParams as QueryParams,
+} from '../_interface/users-interface';
 
 // #1. 공통 fetch 헬퍼
 const fetcher = async <T>(url: string, options?: RequestInit): Promise<T> => {
@@ -43,7 +24,8 @@ const fetchUsers = async (params: QueryParams): Promise<UsersResponse> => {
   if (params.limit) queryParams.append('limit', String(params.limit));
   if (params.sort) queryParams.append('sort', params.sort);
   if (params.order) queryParams.append('order', params.order);
-  if (params.filter) queryParams.append('filter', params.filter);
+  if (params.name) queryParams.append('name', params.name);
+  if (params.email) queryParams.append('email', params.email);
 
   const url = `/api/users?${queryParams.toString()}`;
   return fetcher<UsersResponse>(url);
@@ -84,4 +66,6 @@ export const useUpdateUser = () =>
   useUserMutation<Partial<User> & { idx: number }, User>('PUT', (user) => user);
 
 export const useDeleteUser = () =>
-  useUserMutation<number | string, { success: boolean }>('DELETE', (idx) => ({ idx }));
+  useUserMutation<number | string, { success: boolean }>('DELETE', (idx) => ({
+    idx,
+  }));

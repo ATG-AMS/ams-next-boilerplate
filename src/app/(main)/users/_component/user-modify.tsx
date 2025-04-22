@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/atoms/Button';
 import { Label } from '@/components/atoms/Label';
 import { Input } from '@/components/atoms/Input';
+import { useUpdateUser } from '../_action/user-data-query';
 
 /** 폼 핸들링을 위한 react-hook-form 라이브러리의 Hook */
 import { useForm } from 'react-hook-form';
@@ -26,8 +27,6 @@ import { useForm } from 'react-hook-form';
 import type { User } from '@prisma/client';
 
 /** 데이터 페치 및 상태 관리 라이브러리 */
-import { useMutation } from '@tanstack/react-query';
-import { fetchC } from '@/lib/utils';
 import { useRecoilValue } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
 
@@ -76,25 +75,29 @@ const ModifyDialog = ({ user }: ModifyDialogProps) => {
   const { register, handleSubmit } = useForm();
 
   // 데이터 수정 시 사용할 mutation 훅
-  const { mutate } = useMutation({
-    mutationFn: fetchC,
-    // 성공적으로 데이터가 수정됐을 때 실행할 콜백
-    onSuccess: () => {
-      refetch(); // 데이터를 다시 가져옴
-      closeRef.current?.click(); // 다이얼로그를 닫음
-    },
-  });
+  const { mutateAsync: mutate } = useUpdateUser();
 
   // ref로 다이얼로그 닫기 버튼을 참조
   const closeRef = useRef<HTMLButtonElement>(null);
 
   // 폼 데이터가 제출됐을 때 실행할 핸들러
   const onSubmit = (data: any) => {
-    mutate({
-      endpoint: `users`,
-      method: 'PUT',
-      body: { ...data, idx, status, name },
-    });
+    const updatedData = {
+      ...user,
+      name: data.name,
+      email: data.email,
+      age: data.age,
+      visits: data.visits,
+      progress: data.progress,
+    };
+    mutate(updatedData)
+      .then(() => {
+        refetch(); // 데이터 갱신
+        closeRef.current?.click(); // 다이얼로그 닫기
+      })
+      .catch((error) => {
+        console.error('Error updating user:', error);
+      });
   };
 
   // 컴포넌트 렌더링
@@ -102,11 +105,13 @@ const ModifyDialog = ({ user }: ModifyDialogProps) => {
     <Dialog>
       <DialogTrigger>
         <RxPencil1
-          className={'cursor-pointer transition-all hover:ease-in-out'}
           size={20}
+          className={
+            'cursor-pointer text-blue-500 transition-all hover:ease-in-out'
+          }
         />
       </DialogTrigger>
-      <DialogContent className="bg-white dark:bg-inherit">
+      <DialogContent className="bg-white text-black">
         <DialogHeader>
           <DialogTitle>사용자 정보 수정</DialogTitle>
         </DialogHeader>
