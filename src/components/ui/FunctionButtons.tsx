@@ -4,9 +4,8 @@ import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { z } from "zod";
-import { zodResolver } from '@hookform/resolvers/zod';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
@@ -14,6 +13,7 @@ import { Label } from '@/components/atoms/Label';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { manualAddUserSchema, type ManualAddUserFormData } from '../../app/hsr/_schema/manualAddUserSchema';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
@@ -147,25 +147,6 @@ const checkEmail = async (email: string) => {
 
 //(온보딩) 데이터 직접 추가 요청을 보내는 함수
 export const ManualAddData = ({ className, refetch, syncState }: Props) => {
-  const formSchema = z.object({
-    name: z
-      .string()
-      .trim()
-      .min(2, { message: '2자 이상 입력하세요.' }),
-    email: z
-      .string()
-      .email({ message: '이메일 형식이 아닙니다.' })
-      .nonempty(),
-    age: z
-      .number({ invalid_type_error: '숫자만 입력해주세요.' })
-      .min(1, { message: '1이상의 숫자를 입력해주세요' })
-      .optional(),
-    visits: z.number().optional(),
-    progress: z.number().optional(),
-    status: z.string().optional(),
-  });
-
-  type FormData = z.infer<typeof formSchema>;
 
   const [isOpen, setIsOpen] = useState(false); //폼 보여줌 여부
   const [emailExists, setEmailExists] = useState(false); //이메일 존재 여부
@@ -173,29 +154,33 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
   const [showVerifyMsg, setShowVerifyMsg] = useState(false);  // 이메일 인증메시지 보여줌 여부
 
   const { register, handleSubmit, reset
-          , formState: { errors }, getValues } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+          , formState: { errors }, getValues } = useForm<ManualAddUserFormData>({
+    resolver: zodResolver(manualAddUserSchema),
     mode: 'onChange',
     shouldFocusError: false,
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: ManualAddUserFormData) => {
     if (!isEmailChecked || emailExists) {
       setShowVerifyMsg(true);
       return;
     }
 
     postUserData(data);
+    resetFormState();
+  };
+
+  const resetFormState = () => {
     setIsOpen(false);
     reset();
     setIsEmailChecked(false);
     setEmailExists(false);
     setShowVerifyMsg(false);
-  };
+  }
 
   //TODO : useMutate 활용
-  const postUserData = async (data: FormData) => {
-    
+  const postUserData = async (data: ManualAddUserFormData) => {
+
     const newData = {
       ...data,
       name: data.name.replace(/\s+/g, ""),
@@ -321,13 +306,7 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setIsOpen(false);
-                    reset();
-                    setIsEmailChecked(false);
-                    setEmailExists(false);
-                    setShowVerifyMsg(false);
-                  }}
+                  onClick={() => {resetFormState()}}
                 >
                   취소
                 </Button>
