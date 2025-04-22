@@ -46,9 +46,11 @@ export async function GET(request: Request) {
 
 // 유저를 추가하는 POST 함수
 export async function POST(request: Request) {
+  
   try {
     const json = await request.json();
     const user = await prisma.user.create({ data: json });
+    console.log(user)
     // return jsonResponse(user, 201);
     return new NextResponse(JSON.stringify({
         success: true,

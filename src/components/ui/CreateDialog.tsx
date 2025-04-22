@@ -88,14 +88,6 @@ const CreateDialog = ({ isOpen, setIsOpen }: ModifyDialogProps) => {
   const onSubmit = async (data: any) => {
     console.log(data);
 
-
-    // const result =
-    // const result = await mutate({
-    //   endpoint: `users`,
-    //   method: 'POST',
-    //   body: { ...data },
-    // });
-
     const response = await fetch(`/api/users`, {
       method: 'POST',
       headers: {
@@ -112,9 +104,11 @@ const CreateDialog = ({ isOpen, setIsOpen }: ModifyDialogProps) => {
         message: errorMessage,
       });
     }
-
-    // There's a typo in your code - awai`result.json() should be await result.json()
-
+    else{
+      setIsOpen(false);
+      reset()
+      refetch()
+    }
 
   };
 
@@ -195,7 +189,7 @@ const CreateDialog = ({ isOpen, setIsOpen }: ModifyDialogProps) => {
                 defaultValue={''}
                 id="name"
                 type="number"
-                {...register('age', { required: true , valueAsNumber:true})}
+                {...register('age', {  valueAsNumber:true})}
               />
             </div>
             <div>
