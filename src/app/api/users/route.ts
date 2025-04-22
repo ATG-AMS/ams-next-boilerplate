@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -48,11 +49,24 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const user = await prisma.user.create({ data: json });
-    return jsonResponse(user, 201);
+    // return jsonResponse(user, 201);
+    return new NextResponse(JSON.stringify({
+        success: true,
+        data:user
+      }));
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        return jsonResponse("User with email already exists", 409);
+        // return jsonResponse("User with email already exists", 409);
+        return new NextResponse(JSON.stringify({
+          success: false,
+          data:{
+            code: error.code,
+            message: "중복된 email입니다",// error.message,
+            meta: error.meta,
+          },
+          headers: { 'Content-Type': 'application/json' }
+        }));
       }
     }
     return jsonResponse({ error: (error as Error).message }, 500);

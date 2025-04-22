@@ -13,6 +13,9 @@ import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
 import { createUserAction } from '@/lib/userAction';
 import { VscLoading } from "react-icons/vsc";
+import { IoMdAdd } from "react-icons/io";
+import CreateDialog from './CreateDialog';
+
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
@@ -24,7 +27,8 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
   };
 
   return (
-    <div className={cn('flex justify-end', className)}>
+    <div className={cn('flex justify-end space-x-2', className)}>
+      <ManualData/>
       <GenerateData
         className="border-r border-gray-400"
         refetch={refetch}
@@ -87,7 +91,7 @@ export const GenerateData = ({ className, refetch, syncState }: Props) => {
             // });
             //mutation : method 3
             //using ServerActions
-            const result = await createUserAction(person, completed);
+            const result = await createUserAction(person);
             completed = result.completed
 
 
@@ -187,3 +191,20 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
     </Button>
   );
 };
+
+
+// 수동으로 데이터를 입력하는 컴포넌트
+export const ManualData = () => {
+//
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+ const handleClick = () => {
+    setIsOpen((prev:boolean)=> !prev);
+  }
+  return (
+    <>
+    <Button className='flex space-x-1 border border-gray-200' onClick={handleClick}><IoMdAdd /><span>{"수동생성"}</span></Button>
+    <CreateDialog isOpen={isOpen} setIsOpen={setIsOpen}  />
+    </>
+  )
+}
