@@ -6,9 +6,10 @@ import { useForm,UseFormReturn } from 'react-hook-form';
 import { useState, } from 'react';
 import { faker } from "@faker-js/faker";
 import { Person } from '@/lib/makeData';
+import { useQuery } from '@tanstack/react-query';
 
 /**
- * ✅ SBHModal 컴포넌트에서 받아올 props 타입 정의
+ * SBHModal 컴포넌트에서 받아올 props 타입 정의
  * @property onClose - 닫기 버튼 클릭 시 실행할 콜백 함수
  */
 interface SBHModalProps {
@@ -18,7 +19,7 @@ interface SBHModalProps {
 
 
 /**
- * ✅ 유저 수동 생성 모달 컴포넌트
+ * 유저 수동 생성 모달 컴포넌트
  * @component
  * @param {SBHModalProps} props - 모달에서 사용할 props 객체
  * @returns {JSX.Element} 모달 UI
@@ -29,7 +30,6 @@ export default function SBHModal({ onClose }: SBHModalProps): JSX.Element {
     handleSubmit,
     formState: { errors },
   } = useForm<Person>({mode:'onBlur'}); //기본 useForm 사용
-
 
 
   const handleUserSubmit = async(data: any) => {
@@ -110,6 +110,7 @@ export default function SBHModal({ onClose }: SBHModalProps): JSX.Element {
 
           <div className="flex justify-end gap-2 pt-4">
             <Button type="submit">제출</Button>
+            
              {/* 닫기 버튼 클릭 시 상위에서 전달된 onClose 콜백 실행 */}
             <Button type="button" variant="outline" onClick={onClose}>닫기</Button>
             

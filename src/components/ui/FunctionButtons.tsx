@@ -167,7 +167,7 @@ export const GetDataDB=({className}:Props)=>{
 
   const [userId, setUserId] = useState('');
   const [enabled, setEnabled] = useState(false);
-
+  const [fetchedUser, setFetchedUser] = useState<Person | null>(null);
   const {
     data: user,
     isFetching,
@@ -180,8 +180,8 @@ export const GetDataDB=({className}:Props)=>{
       if (!res.ok) throw new Error('유저를 찾을 수 없습니다.');
       return res.json();
     },
-    enabled: false, // 자동 실행 막기
-  });
+    enabled: false, // 자동 실행 막기 useQuery는 기본적으로 컴포넌트가 렌더링될 때 실행되는데 이걸 막고, 우리가 원할 때(refetch)만 실행
+  }); 
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,26 +190,23 @@ export const GetDataDB=({className}:Props)=>{
     refetch();
   };
 
-  // return(
-  //   <>
-  //     <form className={cn('flex items-center ', className)}>
-  //       <Label className="items-start" htmlFor="rows">
-  //         조회할 것 :
-  //       </Label>
-  //       <Input
-  //         className="w-24 bg-gray-200 shadow-2xl dark:bg-transparent"
-  //         placeholder="ID혹은Email"
-  //         onChange={(e) => setUserId(e.target.value)}
-  //       />
-  //       <Button
-  //         className="text-lg shadow-none"
-  //       >
-  //         조회
-  //       </Button>
-  //     </form>
-      
-  //   </>
-  // )
+
+  const handleFetchSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/user/${userId}`);
+      if (!res.ok) throw new Error('유저 없음');
+      const user = await res.json();
+      console.log("fetch 기반 응답", user);
+      setFetchedUser(user); // ✅ 상태에 반영
+      // 여기서 setUser(user) 등 상태 저장 가능
+    } catch (err) {
+      console.error('fetch 실패:', err);
+      setFetchedUser(null); // 실패 시 초기화
+    }
+  };
+  
+
 
   return (
     <form onSubmit={handleSearch} className={cn('flex items-center', className)}>
@@ -237,8 +234,37 @@ export const GetDataDB=({className}:Props)=>{
           <p><strong>나이:</strong> {user.age}</p>
         </div>
       )}
+      {fetchedUser && (
+        <div className="ml-4 text-sm text-gray-700">
+          <p><strong>이름:</strong> {fetchedUser.name}</p>
+          <p><strong>이메일:</strong> {fetchedUser.email}</p>
+          <p><strong>나이:</strong> {fetchedUser.age}</p>
+        </div>
+      )}
     </form>
   );
+  // return(
+  //   <>
+  //     <form className={cn('flex items-center ', className)}>
+  //       <Label className="items-start" htmlFor="rows">
+  //         조회할 것 :
+  //       </Label>
+  //       <Input
+  //         className="w-24 bg-gray-200 shadow-2xl dark:bg-transparent"
+  //         placeholder="ID혹은Email"
+  //         onChange={(e) => setUserId(e.target.value)}
+  //       />
+  //       <Button
+  //         className="text-lg shadow-none"
+  //       >
+  //         조회
+  //       </Button>
+  //     </form>
+      
+  //   </>
+  // )
+
+
 
 }
 
