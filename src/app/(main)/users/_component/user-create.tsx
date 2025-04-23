@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCreateUser } from '../_action/user-data-query';
+import { useCreateUser } from '../_action/users-data-query';
 import {
   Dialog,
   DialogTrigger,
@@ -31,6 +31,14 @@ interface CreateUserDialogProps {
   onCreate: (newUser: User) => Promise<void>;
 }
 
+/**
+ * 새 사용자를 추가하기 위한 대화 상자(Dialog) 컴포넌트
+ *
+ * @param open - 대화 상자 열림 여부
+ * @param setOpen - 열림 여부 상태 변경 함수
+ * @param onClose - 대화 상자 닫힐 때 실행할 콜백
+ * @param onCreate - 사용자 생성 후 실행할 콜백
+ */
 export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
   open,
   setOpen,
@@ -48,7 +56,9 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
     resolver: zodResolver(createUserSchema),
   });
 
-  // #2. 사용자 생성 핸들러
+  /**
+   * 사용자 생성 폼 제출 핸들러
+   */
   const onSubmit = async (data: CreateUserForm) => {
     try {
       const newUserData = {
@@ -60,6 +70,7 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
         status: 'active',
         createdAt: new Date(),
       } as User;
+
       const newUser = await mutateAsync(newUserData);
       reset();
       setOpen(false);
@@ -77,9 +88,10 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
         if (!value) onClose();
       }}
     >
-      <DialogTrigger className="focus-visible:ring-ring bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 shrink-0 items-center justify-center text-ellipsis whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
+      <DialogTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex h-8 items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
         사용자 추가
       </DialogTrigger>
+
       <DialogContent className="w-full max-w-md text-black">
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>

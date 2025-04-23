@@ -12,16 +12,24 @@ import {
 import ModifyDialog from '../_component/user-modify';
 import { UserDeleteButton } from '../_component/user-delete';
 
+/**
+ * 날짜에서 시간만 추출하는 유틸 함수
+ * @param date - Date 객체 또는 ISO 문자열
+ * @returns 'HH:MM:SS' 형식의 한국 시간 문자열
+ */
 function getTimeFromDate(date: string | Date | undefined): string {
-  if (!date) return ''; // date가 undefined인 경우 빈 문자열 반환
+  if (!date) return '';
   if (typeof date === 'string') {
-    date = new Date(date); // 문자열을 Date 객체로 변환
+    date = new Date(date);
   }
-  return date.toLocaleTimeString('ko-KR'); // 한국 시간으로 시간 부분만 반환
+  return date.toLocaleTimeString('ko-KR');
 }
 
 const UserManageColumnHelper = createColumnHelper<User>();
 
+/**
+ * 사용자 관리 테이블의 컬럼 정의
+ */
 export const UserManageTableColumn = [
   UserManageColumnHelper.accessor('idx', {
     header: () => <p className="text-center">순번</p>,
@@ -98,6 +106,16 @@ export const UserManageTableColumn = [
   }),
 ];
 
+/**
+ * 사용자 관리 테이블 객체 정의.
+ *
+ * @param data - 서버에서 받아온 유저 데이터
+ * @param pageIndex - 현재 페이지 인덱스
+ * @param pageSize - 페이지당 항목 수
+ * @param setPageIndex - 페이지 변경 핸들러
+ * @param setPageSize - 페이지 크기 변경 핸들러
+ * @returns TanStack Table 인스턴스
+ */
 export const UserManageTable = (
   data: UsersResponse | undefined,
   pageIndex: number,
@@ -120,6 +138,7 @@ export const UserManageTable = (
         typeof updater === 'function'
           ? updater({ pageIndex, pageSize })
           : updater;
+
       setPageIndex(newPagination.pageIndex);
       setPageSize(newPagination.pageSize);
     },

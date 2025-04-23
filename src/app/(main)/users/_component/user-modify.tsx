@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/atoms/Button';
 import { Label } from '@/components/atoms/Label';
 import { Input } from '@/components/atoms/Input';
-import { useUpdateUser } from '../_action/user-data-query';
+import { useUpdateUser } from '../_action/users-data-query';
 
 /** 폼 핸들링을 위한 react-hook-form 라이브러리의 Hook */
 import { useForm } from 'react-hook-form';
@@ -61,12 +61,12 @@ const InputField = ({
   </div>
 );
 
-// 사용자 정보 수정 다이얼로그의 props 타입 정의
+// 사용자 정보 수정 대화 상자의 props 타입 정의
 type ModifyDialogProps = {
   user: User;
 };
 
-// 사용자 정보 수정 다이얼로그 컴포넌트 정의
+// 사용자 정보 수정 대화 상자의 컴포넌트 정의
 const ModifyDialog = ({ user }: ModifyDialogProps) => {
   const { refetch } = useRecoilValue(sampleTableState);
   const { idx, name, email, age, visits, progress, status } = user;
@@ -77,7 +77,7 @@ const ModifyDialog = ({ user }: ModifyDialogProps) => {
   // 데이터 수정 시 사용할 mutation 훅
   const { mutateAsync: mutate } = useUpdateUser();
 
-  // ref로 다이얼로그 닫기 버튼을 참조
+  // ref로 대화 상자 닫기 버튼을 참조
   const closeRef = useRef<HTMLButtonElement>(null);
 
   // 폼 데이터가 제출됐을 때 실행할 핸들러
@@ -93,7 +93,7 @@ const ModifyDialog = ({ user }: ModifyDialogProps) => {
     mutate(updatedData)
       .then(() => {
         refetch(); // 데이터 갱신
-        closeRef.current?.click(); // 다이얼로그 닫기
+        closeRef.current?.click(); // 대화 상자 닫기
       })
       .catch((error) => {
         console.error('Error updating user:', error);

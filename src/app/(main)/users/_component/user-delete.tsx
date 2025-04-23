@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from '../_interface/users-interface';
-import { useDeleteUser } from '../_action/user-data-query';
+import { useDeleteUser } from '../_action/users-data-query';
 import { MdDeleteOutline } from 'react-icons/md';
 
 export const UserDeleteButton = ({ user }: { user: User }) => {
