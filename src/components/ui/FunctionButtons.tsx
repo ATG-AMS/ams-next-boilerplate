@@ -1,18 +1,19 @@
 'use client'; // React Client 컴포넌트 임을 명시
 
+import React, { useEffect, useState } from 'react';
+import { Resolver, useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
+
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
-
+import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
 import { Label } from '@/components/atoms/Label';
-import { useForm } from 'react-hook-form';
-import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+
 import { manualAddUserSchema, type ManualAddUserFormData } from '../../app/hsr/_schema/manualAddUserSchema';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
@@ -141,49 +142,37 @@ const checkEmail = async (email: string) => {
     throw new Error('이메일 중복 확인 실패');
   }
 
-  // console.log('요청옴:', response.json());  -> 비동기함수는 내부적으로 스트림데이터! 즉 한번 호출하면 끝!
   return response.json();
 };
 
-//(온보딩) 데이터 직접 추가 요청을 보내는 함수
 export const ManualAddData = ({ className, refetch, syncState }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEmailChecked, setIsEmailChecked] = useState(false);
 
-  const [isOpen, setIsOpen] = useState(false); //폼 보여줌 여부
-  const [emailExists, setEmailExists] = useState(false); //이메일 존재 여부
-  const [isEmailChecked, setIsEmailChecked] = useState(false); //이메일 인증 여부 (창 열리자마자 readonly 처리 방지용)
-  const [showVerifyMsg, setShowVerifyMsg] = useState(false);  // 이메일 인증메시지 보여줌 여부
-
-  const { register, handleSubmit, reset
-          , formState: { errors }, getValues } = useForm<ManualAddUserFormData>({
-    resolver: zodResolver(manualAddUserSchema),
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    getValues,
+    formState: { errors },
+  } = useForm<ManualAddUserFormData>({
+    resolver: zodResolver(manualAddUserSchema) as Resolver<ManualAddUserFormData>,
     mode: 'onChange',
     shouldFocusError: false,
   });
-
-  const onSubmit = (data: ManualAddUserFormData) => {
-    if (!isEmailChecked || emailExists) {
-      setShowVerifyMsg(true);
-      return;
-    }
-
-    postUserData(data);
-    resetFormState();
-  };
 
   const resetFormState = () => {
     setIsOpen(false);
     reset();
     setIsEmailChecked(false);
-    setEmailExists(false);
-    setShowVerifyMsg(false);
-  }
+  };
 
-  //TODO : useMutate 활용
   const postUserData = async (data: ManualAddUserFormData) => {
-
     const newData = {
       ...data,
-      name: data.name.replace(/\s+/g, ""),
+      name: data.name.replace(/\s+/g, ''),
       age: data.age ?? 0,
       visits: data.visits ?? 0,
       progress: data.progress ?? 0,
@@ -205,22 +194,46 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
   };
 
   const handleCheckEmail = async (email: string) => {
-    //TODO : 값이 비어있거나 이메일 형식 안맞을 때 분기처리 해야함
     try {
       const { isAvailable } = await checkEmail(email);
-      setEmailExists(!isAvailable);
-      setIsEmailChecked(true);
-      setShowVerifyMsg(false);
+
+      if (!isAvailable) {
+        setError('email', {
+          type: 'manual',
+          message: '이미 등록된 이메일입니다.',
+        });
+        setIsEmailChecked(false);
+      } else {
+        clearErrors('email');
+        setIsEmailChecked(true);
+      }
     } catch (error) {
-      console.error('이메일 중복 확인 실패:', error);
-      setEmailExists(false);
+      setError('email', {
+        type: 'manual',
+        message: '이메일 중복 확인 중 오류가 발생했어요.',
+      });
       setIsEmailChecked(false);
     }
   };
 
+  const onSubmit = (data: ManualAddUserFormData) => {
+    if (!isEmailChecked || errors.email) {
+      setError('email', {
+        type: 'manual',
+        message: '이메일 인증 또는 다른 이메일을 사용해주세요.',
+      });
+      return;
+    }
+
+    postUserData(data);
+    resetFormState();
+  };
+
   return (
     <>
-      <Button className={cn('text-lg shadow-none')} onClick={() => setIsOpen(true)}>+ 직접 입력</Button>
+      <Button className={cn('text-lg shadow-none')} onClick={() => setIsOpen(true)}>
+        + 직접 입력
+      </Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -237,30 +250,25 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                   <input
                     placeholder='예) abc@email.com'
                     {...register('email')}
-                    readOnly={isEmailChecked && !emailExists}
+                    readOnly={isEmailChecked && !errors.email}
                     className={cn(
                       'w-full rounded border px-3 py-3 text-lg',
-                      (errors.email || emailExists) && 'border-red-500',
-                      isEmailChecked && !emailExists && 'bg-gray-200 cursor-not-allowed'
+                      errors.email && 'border-red-500',
+                      isEmailChecked && !errors.email && 'bg-gray-200 cursor-not-allowed'
                     )}
                   />
                   <Button
-                    variant={'ghost'}
                     type="button"
                     onClick={() => handleCheckEmail(getValues('email'))}
-                    className="h-[55px] w-[20px]"
+                    className="h-[55px] px-3 text-sm bg-gray-100 rounded hover:bg-gray-200"
                   >
-                    확 인
+                    확인
                   </Button>
                 </div>
-                {emailExists && (
-                  <p className="text-red-500 text-sm mt-1">이미 등록된 이메일입니다.</p>
-                )}
-                {!emailExists && isEmailChecked && !errors.email && (
+                {errors.email ? (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                ) : isEmailChecked && (
                   <p className="text-green-600 text-sm mt-1">사용 가능한 이메일입니다.</p>
-                )}
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
                 )}
               </div>
 
@@ -268,7 +276,6 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                 <label className="block mb-1 font-medium">
                   이름 <span className="text-orange-500 font-bold">*</span>
                 </label>
-
                 <input
                   placeholder='예) 홍길동'
                   {...register('name')}
@@ -278,7 +285,7 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                   )}
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name?.message}</p>
+                  <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
                 )}
               </div>
 
@@ -288,7 +295,7 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
                   <input
                     placeholder="예) 23"
                     {...register('age', {
-                      setValueAs: (value) => value === '' ? undefined : Number(value),
+                      setValueAs: (value) => (value === '' ? undefined : Number(value)),
                     })}
                     className={cn(
                       'w-24 rounded border px-3 py-2 text-lg',
@@ -305,19 +312,18 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
               <div className="mt-4 flex justify-end gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={() => {resetFormState()}}
+                  onClick={resetFormState}
+                  className="border px-4 py-2 rounded hover:bg-gray-100"
                 >
                   취소
                 </Button>
-                <Button type="submit" variant="outline">추가</Button>
+                <Button
+                  type="submit"
+                  className="border px-4 py-2 rounded hover:bg-gray-100"
+                >
+                  추가
+                </Button>
               </div>
-
-              {showVerifyMsg && (
-                <p className="text-red-600 text-sm mt-2 text-right font-semibold">
-                  이메일 인증 또는 다른 이메일을 사용해주세요.
-                </p>
-              )}
             </form>
           </div>
         </div>
