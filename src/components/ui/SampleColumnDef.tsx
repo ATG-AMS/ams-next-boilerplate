@@ -4,6 +4,7 @@ import type { User } from "@prisma/client"; // Prisma에서 제공하는 User �
 import type { ColumnDef } from "@tanstack/react-table"; // @tanstack/react-table 라이브러리에서 제공하는 ColumnDef 타입
 import type { ReactNode } from "react"; // React의 기본 타입인 ReactNode 타입
 import ModifyDialog from "./ModifyDialog"; // 사용자 정보 수정 다이얼로그 컴포넌트
+import { useRouter } from "next/navigation";
 
 // 테이블의 기본 컬럼 정의
 export const defaultColumn: Array<ColumnDef<User>> = [
@@ -23,8 +24,26 @@ export const defaultColumn: Array<ColumnDef<User>> = [
       <p className="text-center">{cell.getValue() as ReactNode}</p>
     ),
   },
-  { accessorKey: "email", header: "이메일" },
   {
+    accessorKey: "email",
+    header: "이메일",
+    cell: ({ row }) => {
+      const router = useRouter();
+      const { idx, email } = row.original;
+  
+      return (
+        <p
+          className="cursor-pointer text-center"
+          onClick={(e) => {
+            e.stopPropagation(); // 혹시 모를 상위 row 클릭 이벤트 방지
+            router.push(`/user/${idx}`);
+          }}
+        >
+          {email}
+        </p>
+      );
+    },
+  },  {
     accessorKey: "age",
     header: "나이",
     cell: (cell) => (
