@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"; // @tanstack/react-table
 import type { ReactNode } from "react"; // React의 기본 타입인 ReactNode 타입
 import ModifyDialog from "./ModifyDialog"; // 사용자 정보 수정 다이얼로그 컴포넌트
 import { useRouter } from "next/navigation";
+import * as HoverCard from '@radix-ui/react-hover-card';
 
 // 테이블의 기본 컬럼 정의
 export const defaultColumn: Array<ColumnDef<User>> = [
@@ -29,21 +30,41 @@ export const defaultColumn: Array<ColumnDef<User>> = [
     header: "이메일",
     cell: ({ row }) => {
       const router = useRouter();
-      const { idx, email } = row.original;
-  
+      const { idx, email, name, age, status, createdAt } = row.original;
+
       return (
-        <p
-          className="cursor-pointer text-center"
-          onClick={(e) => {
-            e.stopPropagation(); // 혹시 모를 상위 row 클릭 이벤트 방지
-            router.push(`/user/${idx}`);
-          }}
-        >
-          {email}
-        </p>
+        <HoverCard.Root>
+          <HoverCard.Trigger asChild>
+            <p
+              className="cursor-pointer text-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/user/${idx}`);
+              }}
+            >
+              {email}
+            </p>
+          </HoverCard.Trigger>
+          <HoverCard.Content
+            sideOffset={5}
+            className="bg-white p-4 shadow-xl rounded-md w-64 border"
+          >
+            <p className="font-bold text-gray-800 mb-2">{name}</p>
+            <p>나이: {age}</p>
+            <p>상태: {status}</p>
+            <p>가입일: {new Date(createdAt).toLocaleDateString()}</p>
+            <button
+              onClick={() => router.push(`/user/${idx}`)}
+              className="mt-2 text-sm text-blue-500 underline"
+            >
+              상세보기 →
+            </button>
+          </HoverCard.Content>
+        </HoverCard.Root>
       );
     },
-  },  {
+  },
+  {
     accessorKey: "age",
     header: "나이",
     cell: (cell) => (
