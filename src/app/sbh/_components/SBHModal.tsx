@@ -7,16 +7,21 @@ import { useState, } from 'react';
 import { faker } from "@faker-js/faker";
 import { Person } from '@/lib/makeData';
 import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * SBHModal 컴포넌트에서 받아올 props 타입 정의
  * @property onClose - 닫기 버튼 클릭 시 실행할 콜백 함수
  */
+// interface SBHModalProps {
+//   onClose: () => void;
+// }
+
 interface SBHModalProps {
   onClose: () => void;
+  refetch: () => void; // ✅ 상위에서 받은 refetch
+  syncState: () => void;
 }
-
-
 
 /**
  * 유저 수동 생성 모달 컴포넌트
@@ -24,13 +29,14 @@ interface SBHModalProps {
  * @param {SBHModalProps} props - 모달에서 사용할 props 객체
  * @returns {JSX.Element} 모달 UI
  */
-export default function SBHModal({ onClose }: SBHModalProps): JSX.Element {
+export default function SBHModal({ onClose,refetch,syncState }: SBHModalProps): JSX.Element {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Person>({mode:'onBlur'}); //기본 useForm 사용
 
+  const queryClient = useQueryClient();
 
   const handleUserSubmit = async(data: any) => {
     const newUser:Person={
@@ -58,7 +64,11 @@ export default function SBHModal({ onClose }: SBHModalProps): JSX.Element {
     
         const result = await response.json();
         console.log('서버 응답:', result);
-    
+        syncState();   // 페이지 초기화
+        refetch();
+        // 추가된 부분: 캐시 무효화
+        // queryClient.invalidateQueries({ queryKey: [{ endpoint: 'users' }] });
+
         onClose(); // 성공 시 모달 닫기
       } catch (err) {
         console.error('에러 발생:', err);

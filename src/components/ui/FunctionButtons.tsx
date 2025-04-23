@@ -138,7 +138,7 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
 /**
  * 모달 열기 버튼 + 모달 제어 컴포넌트
  */
-export const GenerateFormButton = ({className}:Props) => {
+export const GenerateFormButton = ({ className, refetch, syncState }: Props) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -150,12 +150,15 @@ export const GenerateFormButton = ({className}:Props) => {
           && 연산자는 short-circuit evaluation (단락 평가) 방식으로
           showModal이 true일 때만 뒤의 JSX(SBHModal)가 실행됨
         */}
+
       {showModal && (
         <SBHModal
           /**
            * 모달 컴포넌트에 닫기용 콜백 전달
            * → 닫기 버튼 클릭 시 setShowModal(false) 호출됨
            */
+          refetch={refetch}           // ✅ 상위에서 전달받은 걸 그대로 SBHModal에 넘김
+          syncState={syncState}  
           onClose={() => setShowModal(false)}
         />
       )}
@@ -174,7 +177,7 @@ export const GetDataDB=({className}:Props)=>{
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['user', userId],
+    queryKey: ['users', userId],
     queryFn: async () => {
       const res = await fetch(`/api/user/${userId}`);
       if (!res.ok) throw new Error('유저를 찾을 수 없습니다.');
