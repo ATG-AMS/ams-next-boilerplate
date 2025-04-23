@@ -3,7 +3,7 @@ import './_style/user-info.css';
 import UserInfoWithEmail from './_component/user-info-email';
 import UserInfoWithIdx from './_component/user-info-idx';
 
-export const UserInfoPage: React.FC = () => {
+const UserInfoPage: React.FC = () => {
   return (
     <div
       className="flex size-full flex-col items-center justify-center"
