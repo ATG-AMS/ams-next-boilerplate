@@ -4,7 +4,7 @@ import type { User } from "@prisma/client"; // Prisma에서 제공하는 User �
 import type { ColumnDef } from "@tanstack/react-table"; // @tanstack/react-table 라이브러리에서 제공하는 ColumnDef 타입
 import type { ReactNode } from "react"; // React의 기본 타입인 ReactNode 타입
 import ModifyDialog from "./ModifyDialog"; // 사용자 정보 수정 다이얼로그 컴포넌트
-
+import {DeleteButton} from "./DeleteButton"; // 사용자 삭제 기능 버튼 컴포넌트
 // 테이블의 기본 컬럼 정의
 export const defaultColumn: Array<ColumnDef<User>> = [
   {
@@ -71,6 +71,16 @@ export const defaultColumn: Array<ColumnDef<User>> = [
     cell: (cell) => (
       <div className="text-center">
         <ModifyDialog user={cell.row.original} />
+      </div>
+    ),
+  },
+  {
+    // 수정 버튼에 대한 컬럼
+    header: "삭제",
+    // 각 행에 대한 사용자 정보를 ModifyDialog 컴포넌트에 전달
+    cell: (cell) => (
+      <div className="text-center">
+        <DeleteButton user={cell.row.original} />
       </div>
     ),
   },
