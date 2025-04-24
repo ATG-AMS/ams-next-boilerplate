@@ -66,6 +66,7 @@ type UserData = {
 export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { rows, pageSize, pageIndex } = tableState;
+  const { sortBy, sortOrder } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
     useQuery<UserData>({
       queryKey: [
@@ -74,8 +75,10 @@ export const SampleTable = ({ initialData }: Props) => {
           queryParams: {
             page: pageIndex,
             limit: pageSize,
-            sort: 'createdAt',
-            order: 'desc',
+            // sort: 'createdAt',
+            // order: 'desc',
+            sort: sortBy,
+            order: sortOrder,
           },
         },
       ],
@@ -178,22 +181,48 @@ SampleTable.displayName = 'SampleTable';
 
 // 테이블 헤더 부분을 렌더링하는 컴포넌트
 const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
+  const [tableState, setTableState] = useRecoilState(sampleTableState);
+  const { sortBy, sortOrder } = tableState;
+
+  // 정렬 핸들러 함수
+  const handleSort = (columnId: string) => {
+    if (sortBy === columnId) {
+      // 이미 정렬된 컬럼이라면 방향만 토글
+      const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      setTableState((prev) => ({ ...prev, sortOrder: newOrder }));
+    } else {
+      // 새 컬럼 클릭 시 정렬 기준 변경
+      setTableState((prev) => ({
+        ...prev,
+        sortBy: columnId as keyof User,
+        sortOrder: 'asc', // 초기 정렬 방향은 asc
+      }));
+    }
+  };
+
   return (
     <TableHeader className="sticky top-0 bg-gray-700 text-white dark:bg-slate-800">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => {
+            const columnId = header.column.id;
+            const isSortedColumn = sortBy === columnId;
+
             return (
               <TableHead
                 key={header.id}
-                className="text-center"
+                className="text-center cursor-pointer select-none"
                 colSpan={header.colSpan}
+                onClick={() => handleSort(columnId)}
               >
                 {header.isPlaceholder ? null : (
-                  <div>
+                  <div className="flex items-center justify-center gap-1">
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
+                    )}
+                    {isSortedColumn && (
+                      <span>{sortOrder === 'asc' ? '▲' : '▼'}</span>
                     )}
                   </div>
                 )}
@@ -205,6 +234,7 @@ const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
     </TableHeader>
   );
 };
+
 
 // 테이블 바디 부분을 렌더링하는 컴포넌트
 const SampleTableBody = ({ table }: { table: TableType<User> }) => {
