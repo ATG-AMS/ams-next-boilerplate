@@ -27,6 +27,7 @@ import {
   SelectItem,
 } from '@/components/atoms/Select';
 import { FunctionToolbar } from '@/components/ui/FunctionButtons';
+import { UserSearchBar } from '@/app/search-user/_component/UserSearchBar';
 
 /** 데이터를 가져오는데 사용되는 react-query 훅 */
 import { useQuery } from '@tanstack/react-query';
@@ -140,7 +141,14 @@ export const SampleTable = ({ initialData }: Props) => {
   if (statusMessage || data.rows.length === 0)
     return (
       <div className="mx-auto max-w-screen-2xl">
-        <FunctionToolbar />
+
+        {/* 상단 툴바 & 검색바 섹션  */}
+        <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
+          {/* <UserSearchBar className="bg-white rounded-xl shadow-sm p-3 my-3"/> */}
+          <UserSearchBar className="p-3 my-3"/>
+          <FunctionToolbar className="bg-white rounded-xl shadow-sm p-3 my-3" />
+        </div>
+
         <div className="h-[36vh] overflow-auto">
           <Table className="my-4" maxHeight="35vh">
             <SampleTableHeader table={table} />
