@@ -19,8 +19,8 @@ const range = (len: number) => {
 
 const newPerson = (): Person => {
   return {
-    name: faker.person.firstName(),
-    email: faker.internet.email(),
+    name: faker.person.firstName().toLowerCase(),
+    email: faker.internet.email().toLowerCase(),
     age: faker.number.int(40),
     visits: faker.number.int(1000),
     progress: faker.number.int(100),
