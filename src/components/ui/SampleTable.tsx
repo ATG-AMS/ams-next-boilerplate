@@ -227,55 +227,65 @@ const SampleTableBody = ({ table }: { table: TableType<User> }) => {
   );
 };
 
-// 테이블의 페이지네이션을 제어하는 컴포넌트
 export const TablePageController = () => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { count, pageIndex, pageSize, pageCount } = tableState;
+
+  // 현재 페이지 그룹 기준 계산 (5개씩 보여줌)
+  const groupSize = 5;
+  const currentGroup = Math.floor(pageIndex / groupSize);
+  const startPage = currentGroup * groupSize;
+  const endPage = Math.min(startPage + groupSize, pageCount);
+  const a=0;
+  const handlePageClick = (index: number) => {
+    setTableState((prev) => ({ ...prev, pageIndex: index }));
+  };
+
+  const goToPrevGroup = () => {
+    if (startPage > 0) handlePageClick(startPage - groupSize);
+    else if(startPage==0){
+      handlePageClick(0);
+    }
+  };
+
+  const goToNextGroup = () => {
+    if (endPage < pageCount) handlePageClick(endPage);
+    else(handlePageClick(pageCount-1));
+  };
+
   return (
     <div className="flex w-full items-center justify-between gap-2">
       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
-      <div className="flex gap-2">
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === 0}
-          onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
-        >
+      <div className="flex gap-2 items-center">
+        <Button onClick={goToPrevGroup} disabled={pageIndex === 0}>
           <RxDoubleArrowLeft size={20} />
         </Button>
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === 0}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageIndex - 1 }))
-          }
-        >
+        <Button onClick={() => handlePageClick(pageIndex - 1)} disabled={pageIndex === 0}>
           <RxChevronLeft size={20} />
         </Button>
-        <span className="flex items-center gap-1">
-          <p>
-            <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{' '}
-            <strong>{pageIndex + 1}</strong> 페이지
-          </p>
-        </span>
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === pageCount - 1}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageIndex + 1 }))
-          }
-        >
+
+        {/* 페이지 숫자 버튼 */}
+        {Array.from({ length: endPage - startPage }, (_, i) => {
+          const page = startPage + i;
+          return (
+            <Button
+              key={page}
+              className={pageIndex === page ? 'bg-blue-500 text-white' : ''}
+              onClick={() => handlePageClick(page)}
+            >
+              {page + 1}
+            </Button>
+          );
+        })}
+
+        <Button onClick={() => handlePageClick(pageIndex + 1)} disabled={pageIndex === pageCount - 1}>
           <RxChevronRight size={20} />
         </Button>
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === pageCount - 1}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageCount - 1 }))
-          }
-        >
+        <Button onClick={goToNextGroup} disabled={pageIndex === pageCount - 1}>
           <RxDoubleArrowRight size={20} />
         </Button>
       </div>
+
       <Select
         defaultValue={pageSize.toString()}
         onValueChange={(e) => {
@@ -300,4 +310,78 @@ export const TablePageController = () => {
     </div>
   );
 };
-TablePageController.displayName = 'TablePageController';
+
+// // 테이블의 페이지네이션을 제어하는 컴포넌트
+// export const TablePageController = () => {
+//   const [tableState, setTableState] = useRecoilState(sampleTableState);
+//   const { count, pageIndex, pageSize, pageCount } = tableState;
+//   return (
+//     <div className="flex w-full items-center justify-between gap-2">
+//       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
+//       <div className="flex gap-2">
+//         <Button
+//           className="rounded border p-1 shadow-none"
+//           disabled={pageIndex === 0}
+//           onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
+//         >
+//           <RxDoubleArrowLeft size={20} />
+//         </Button>
+//         <Button
+//           className="rounded border p-1 shadow-none"
+//           disabled={pageIndex === 0}
+//           onClick={() =>
+//             setTableState((prev) => ({ ...prev, pageIndex: pageIndex - 1 }))
+//           }
+//         >
+//           <RxChevronLeft size={20} />
+//         </Button>
+//         <span className="flex items-center gap-1">
+//           <p>
+//             <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{' '}
+//             <strong>{pageIndex + 1}</strong> 페이지
+//           </p>
+//         </span>
+//         <Button
+//           className="rounded border p-1 shadow-none"
+//           disabled={pageIndex === pageCount - 1}
+//           onClick={() =>
+//             setTableState((prev) => ({ ...prev, pageIndex: pageIndex + 1 }))
+//           }
+//         >
+//           <RxChevronRight size={20} />
+//         </Button>
+//         <Button
+//           className="rounded border p-1 shadow-none"
+//           disabled={pageIndex === pageCount - 1}
+//           onClick={() =>
+//             setTableState((prev) => ({ ...prev, pageIndex: pageCount - 1 }))
+//           }
+//         >
+//           <RxDoubleArrowRight size={20} />
+//         </Button>
+//       </div>
+//       <Select
+//         defaultValue={pageSize.toString()}
+//         onValueChange={(e) => {
+//           setTableState((prev) => ({
+//             ...prev,
+//             pageSize: Number(e),
+//             pageIndex: 0,
+//           }));
+//         }}
+//       >
+//         <SelectTrigger className="w-24">
+//           <SelectValue placeholder={pageSize} />
+//         </SelectTrigger>
+//         <SelectContent>
+//           {[10, 20, 30, 40, 50].map((size) => (
+//             <SelectItem key={size} value={size.toString()}>
+//               {size}
+//             </SelectItem>
+//           ))}
+//         </SelectContent>
+//       </Select>
+//     </div>
+//   );
+// };
+// TablePageController.displayName = 'TablePageController';
