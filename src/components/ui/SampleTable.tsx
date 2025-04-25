@@ -184,8 +184,8 @@ export const SampleTable = ({ initialData }: Props) => {
     <div className="mx-auto max-w-screen-2xl">
       {/* 상단 툴바 & 검색바 섹션  */}
       <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
-        <UserSearchBar className="bg-white rounded-xl shadow-sm p-3 my-3" onSearch={handleSearch} />
-        <FunctionToolbar className="bg-white rounded-xl shadow-sm p-3 my-3" />
+        <UserSearchBar className="p-3 my-3" onSearch={handleSearch} />
+        <FunctionToolbar className="p-3 my-3" />
       </div>
       <div className="h-[36vh] overflow-auto">
         <Table className="my-4" maxHeight="35vh">
