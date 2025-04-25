@@ -120,26 +120,26 @@ const ModifyDialog = ({ user }: ModifyDialogProps) => {
               register={register}
             />
             <InputField
-              defaultValue={age}
+              defaultValue={age ||0}
               label="나이"
               name="age"
               register={register}
             />
             <InputField
-              defaultValue={visits}
+              defaultValue={visits || 0}
               label="방문횟수"
               name="visits"
               register={register}
             />
             <InputField
-              defaultValue={progress}
+              defaultValue={progress || 0}
               label="진행률"
               name="progress"
               register={register}
             />
             <InputField
               disabled
-              defaultValue={status}
+              defaultValue={status || ''}
               label="상태"
               name="status"
             />
