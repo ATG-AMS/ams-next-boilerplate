@@ -110,7 +110,6 @@ export const SampleTable = ({ initialData }: Props) => {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
-  const notice = '';
   const EMPTY_ROWS = 10;
   const LOADING_MESSAGE = '데이터를 불러오고 있습니다.';
   const ERROR_MESSAGE = '데이터를 찾을 수 없습니다.';
@@ -235,31 +234,33 @@ export const TablePageController = () => {
   const currentGroup = Math.floor(pageIndex / groupSize);
   const startPage = currentGroup * groupSize;
   const endPage = Math.min(startPage + groupSize, pageCount);
-  const a=0;
   const handlePageClick = (index: number) => {
     setTableState((prev) => ({ ...prev, pageIndex: index }));
   };
 
   const goToPrevGroup = () => {
     if (startPage > 0) handlePageClick(startPage - groupSize);
-    else if(startPage==0){
+    else if (startPage == 0) {
       handlePageClick(0);
     }
   };
 
   const goToNextGroup = () => {
     if (endPage < pageCount) handlePageClick(endPage);
-    else(handlePageClick(pageCount-1));
+    else handlePageClick(pageCount - 1);
   };
 
   return (
     <div className="flex w-full items-center justify-between gap-2">
       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
-      <div className="flex gap-2 items-center">
-        <Button onClick={goToPrevGroup} disabled={pageIndex === 0}>
+      <div className="flex items-center gap-2">
+        <Button  disabled={pageIndex === 0} onClick={goToPrevGroup}>
           <RxDoubleArrowLeft size={20} />
         </Button>
-        <Button onClick={() => handlePageClick(pageIndex - 1)} disabled={pageIndex === 0}>
+        <Button
+          disabled={pageIndex === 0}
+          onClick={() => handlePageClick(pageIndex - 1)}
+        >
           <RxChevronLeft size={20} />
         </Button>
 
@@ -276,10 +277,13 @@ export const TablePageController = () => {
           );
         })}
 
-        <Button onClick={() => handlePageClick(pageIndex + 1)} disabled={pageIndex === pageCount - 1}>
+        <Button
+          disabled={pageIndex === pageCount - 1}
+          onClick={() => handlePageClick(pageIndex + 1)}
+        >
           <RxChevronRight size={20} />
         </Button>
-        <Button onClick={goToNextGroup} disabled={pageIndex === pageCount - 1}>
+        <Button  disabled={pageIndex === pageCount - 1} onClick={goToNextGroup}>
           <RxDoubleArrowRight size={20} />
         </Button>
       </div>
