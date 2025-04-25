@@ -49,6 +49,7 @@ import { defaultColumn } from '@/components/ui/SampleColumnDef';
 /** Recoil 상태 관리 훅과 정의한 atom */
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { fetchC } from '@/lib/utils';
 
 // Props와 UserData 타입을 정의
 type Props = {
@@ -68,17 +69,14 @@ export const SampleTable = ({ initialData }: Props) => {
   const { rows, pageSize, pageIndex } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
     useQuery<UserData>({
-      queryKey: [
-        {
-          endpoint: 'users',
-          queryParams: {
-            page: pageIndex,
-            limit: pageSize,
-            sort: 'createdAt',
-            order: 'desc',
-          },
-        },
-      ],
+      queryKey: ['users', pageIndex, pageSize],
+      queryFn: async () => {
+        const res = await fetch(
+          `/api/users?page=${pageIndex}&limit=${pageSize}&sort=createdAt&order=desc`
+        );
+        if (!res.ok) throw new Error('사용자 목록 로딩 실패');
+        return res.json();
+      },
       initialData: initialData || { rows: [], count: 0 },
     });
   useEffect(() => {
@@ -227,11 +225,12 @@ const SampleTableBody = ({ table }: { table: TableType<User> }) => {
   );
 };
 
+//pagination 관련 컴포넌트트
 export const TablePageController = () => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { count, pageIndex, pageSize, pageCount } = tableState;
 
-  // 현재 페이지 그룹 기준 계산 (5개씩 보여줌)
+  // 현재 페이지 그룹 기준 계산 (5개씩 표시)
   const groupSize = 5;
   const currentGroup = Math.floor(pageIndex / groupSize);
   const startPage = currentGroup * groupSize;
@@ -264,7 +263,6 @@ export const TablePageController = () => {
           <RxChevronLeft size={20} />
         </Button>
 
-        {/* 페이지 숫자 버튼 */}
         {Array.from({ length: endPage - startPage }, (_, i) => {
           const page = startPage + i;
           return (
@@ -310,78 +308,3 @@ export const TablePageController = () => {
     </div>
   );
 };
-
-// // 테이블의 페이지네이션을 제어하는 컴포넌트
-// export const TablePageController = () => {
-//   const [tableState, setTableState] = useRecoilState(sampleTableState);
-//   const { count, pageIndex, pageSize, pageCount } = tableState;
-//   return (
-//     <div className="flex w-full items-center justify-between gap-2">
-//       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
-//       <div className="flex gap-2">
-//         <Button
-//           className="rounded border p-1 shadow-none"
-//           disabled={pageIndex === 0}
-//           onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
-//         >
-//           <RxDoubleArrowLeft size={20} />
-//         </Button>
-//         <Button
-//           className="rounded border p-1 shadow-none"
-//           disabled={pageIndex === 0}
-//           onClick={() =>
-//             setTableState((prev) => ({ ...prev, pageIndex: pageIndex - 1 }))
-//           }
-//         >
-//           <RxChevronLeft size={20} />
-//         </Button>
-//         <span className="flex items-center gap-1">
-//           <p>
-//             <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{' '}
-//             <strong>{pageIndex + 1}</strong> 페이지
-//           </p>
-//         </span>
-//         <Button
-//           className="rounded border p-1 shadow-none"
-//           disabled={pageIndex === pageCount - 1}
-//           onClick={() =>
-//             setTableState((prev) => ({ ...prev, pageIndex: pageIndex + 1 }))
-//           }
-//         >
-//           <RxChevronRight size={20} />
-//         </Button>
-//         <Button
-//           className="rounded border p-1 shadow-none"
-//           disabled={pageIndex === pageCount - 1}
-//           onClick={() =>
-//             setTableState((prev) => ({ ...prev, pageIndex: pageCount - 1 }))
-//           }
-//         >
-//           <RxDoubleArrowRight size={20} />
-//         </Button>
-//       </div>
-//       <Select
-//         defaultValue={pageSize.toString()}
-//         onValueChange={(e) => {
-//           setTableState((prev) => ({
-//             ...prev,
-//             pageSize: Number(e),
-//             pageIndex: 0,
-//           }));
-//         }}
-//       >
-//         <SelectTrigger className="w-24">
-//           <SelectValue placeholder={pageSize} />
-//         </SelectTrigger>
-//         <SelectContent>
-//           {[10, 20, 30, 40, 50].map((size) => (
-//             <SelectItem key={size} value={size.toString()}>
-//               {size}
-//             </SelectItem>
-//           ))}
-//         </SelectContent>
-//       </Select>
-//     </div>
-//   );
-// };
-// TablePageController.displayName = 'TablePageController';

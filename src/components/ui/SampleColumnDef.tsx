@@ -75,9 +75,9 @@ export const defaultColumn: Array<ColumnDef<User>> = [
     ),
   },
   {
-    // 수정 버튼에 대한 컬럼
+    // 삭제제 버튼에 대한 컬럼
     header: "삭제",
-    // 각 행에 대한 사용자 정보를 ModifyDialog 컴포넌트에 전달
+    // 각 행에 대한 사용자 정보를 삭제 및 refetch
     cell: (cell) => (
       <div className="text-center">
         <DeleteButton user={cell.row.original} />

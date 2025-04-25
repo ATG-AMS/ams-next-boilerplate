@@ -14,28 +14,29 @@ import { useRecoilValue } from 'recoil';
 
 // 1. 행 삭제 버튼 (각 row 내부)
 export const DeleteButton = ({ user }: { user: User }) => {
-    const { refetch } = useRecoilValue(sampleTableState); // recoil로 받은 refetch 함수
 
     const queryClient=useQueryClient();
-    const id = user.idx
     const { mutate } = useMutation({
         mutationFn: async () => {
-            const res= await fetch(`/api/users/${id}`, {
-                    method: 'DELETE' 
+            const res = await fetch('/api/users', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ idx: user.idx }), // ✅ id → body로 전달
             });
+      
             if (!res.ok) {
-                throw new Error('삭제 실패');
+              throw new Error('삭제 실패');
             }
-        },
-        onSuccess: () => {
-            refetch();
-            // queryClient.invalidateQueries({
-            //     predicate: (query) => {
-            //       const key = query.queryKey?.[0] as { endpoint?: string };
-            //       return key?.endpoint === 'users';
-            //     },
-            //   });
-        },
+          },
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              //['users', *]로 시작하는 모든 queryKey에 대해 무효화(invalidate) 동작을 수행
+              //invalidate 이후 삭제를 한 페이지의 정보로 refetch 재실행(재요청)
+              queryKey: ['users']
+            });
+          }
     });
 
     return (
@@ -49,57 +50,3 @@ export const DeleteButton = ({ user }: { user: User }) => {
     );
 };
   
-// 2. 선택 삭제 + 전체 삭제 버튼 툴바 (페이지 상단 툴바 또는 테이블 위쪽)
-export const PageDeleteToolbar = ({ selectedIds }: { selectedIds: number[] }) => {
-const queryClient=useQueryClient();
-
-
-const { mutate: deleteSelected } = useMutation({
-    mutationFn: async () => {
-    return await fetch(`/api/users/bulk-delete`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedIds }),
-    });
-    },
-    onSuccess: () => {
-    queryClient.invalidateQueries({queryKey:['users']});
-    },
-});
-
-const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return;
-    deleteSelected();
-};
-
-return (
-    <div className="flex gap-2">
-    <Button onClick={handleDeleteSelected} disabled={selectedIds.length === 0}>
-        선택 삭제
-    </Button>
-    <FullDeleteButton />
-    </div>
-);
-};
-  
-  // 3. 전체 삭제 버튼 (별도 분리 가능)
-export const FullDeleteButton = () => {
-
-    const queryClient=useQueryClient();
-
-
-const { mutate } = useMutation({
-    mutationFn: async () => {
-    return await fetch(`/api/users`, { method: 'DELETE' });
-    },
-    onSuccess: () => {
-    queryClient.invalidateQueries({queryKey:['users']});
-    },
-});
-
-return (
-    <Button variant="destructive" onClick={() => mutate()}>
-    전체 삭제
-    </Button>
-);
-};
