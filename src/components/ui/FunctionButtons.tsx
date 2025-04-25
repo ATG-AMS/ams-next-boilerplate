@@ -3,7 +3,7 @@
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
@@ -11,15 +11,58 @@ import { Label } from '@/components/atoms/Label';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { SingleUserDialog } from './single-user-dialog';
+import { swalDialog, swalToast } from '@/lib/swal';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const { refetch } = tableState;
+  const { mutate, status } = useMutation({ mutationFn: fetchC });
 
   // 첫 번째 페이지로 되돌리는 함수
   const resetToFirstPage = () => {
     setTableState((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  // 단일 사용자 수동 추가 폼 제출 핸들러
+  const onSingleUserFormSubmit = (data: any) => {
+    const transformedData = {
+      ...data,
+      age: data.age ? Number(data.age) : undefined,
+      visits: data.visits ? Number(data.visits) : undefined,
+      progress: data.progress ? Number(data.progress) : undefined,
+    };
+
+    mutate(
+      {
+        endpoint: 'users',
+        method: 'POST',
+        body: transformedData,
+      },
+      {
+        onSuccess: () => {
+          setShowAddDialog(false);
+          refetch();
+          resetToFirstPage();
+          swalToast(
+            '사용자 추가 성공',
+            '사용자가 성공적으로 추가되었습니다.',
+            'success'
+          );
+        },
+        onError: (error) => {
+          console.error('사용자 추가 중 에러 발생:', error);
+          swalToast(
+            '사용자 추가 실패',
+            '사용자 추가에 실패했습니다. 이메일 중복 여부 등을 확인한 후 다시 시도해주세요.',
+            'error',
+            5000
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -28,6 +71,12 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
         className="border-r border-gray-400"
         refetch={refetch}
         syncState={resetToFirstPage}
+      />
+      <SingleUserDialog
+        isCreate={true}
+        isOpen={showAddDialog}
+        setIsOpen={setShowAddDialog}
+        onSubmit={onSingleUserFormSubmit}
       />
       <ResetButton refetch={refetch} syncState={resetToFirstPage} />
     </div>
