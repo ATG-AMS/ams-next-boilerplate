@@ -40,7 +40,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
             id="name"
             value={name}
             placeholder="이름 입력"
-            className="w-[140px] bg-gray-200 shadow-2xl"
+            className="w-[140px] bg-gray-200 shadow-2xl dark:text-black"
             onChange={(e) => { setName(e.target.value); }}
           />
         </div>
@@ -51,7 +51,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
             id="email"
             value={email}
             placeholder="이메일 입력"
-            className="w-[250px] bg-gray-200 shadow-2xl"
+            className="w-[250px] bg-gray-200 shadow-2xl dark:text-black"
             onChange={(e) => { setEmail(e.target.value); }}
           />
         </div>
@@ -63,7 +63,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
             value={age}
             type="number"
             placeholder="나이 입력"
-            className="w-[100px] bg-gray-200 shadow-2xl"
+            className="w-[100px] bg-gray-200 shadow-2xl dark:text-black"
             onChange={(e) => { setAge(e.target.value); }}
           />
         </div>
