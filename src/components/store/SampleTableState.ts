@@ -10,6 +10,8 @@ export interface ISampleTableState {
   pageSize: number; // 한 페이지당 표시될 행의 수
   pageIndex: number; // 현재 페이지 인덱스
   pageCount: number; // 전체 페이지 수
+  sortBy: keyof User; // 정렬 기준 컬럼 (예: name, email, createdAt 등)
+  sortOrder: 'asc' | 'desc'; // 오름차순 또는 내림차순
   refetch: () => void; // 데이터를 다시 가져오기 위한 함수
 }
 
@@ -23,6 +25,8 @@ export const sampleTableState = atom<ISampleTableState>({
     pageSize: 10,
     pageIndex: 0,
     pageCount: 0,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
     refetch: () => null,
   },
 });

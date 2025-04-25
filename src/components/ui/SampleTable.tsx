@@ -1,7 +1,7 @@
 'use client'; // React Client 컴포넌트 임을 명시
 
 /** 필수 React 훅과 아이콘 라이브러리 */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   RxDoubleArrowLeft,
   RxDoubleArrowRight,
@@ -27,6 +27,7 @@ import {
   SelectItem,
 } from '@/components/atoms/Select';
 import { FunctionToolbar } from '@/components/ui/FunctionButtons';
+import { UserSearchBar } from '@/app/search-user/_component/UserSearchBar';
 
 /** 데이터를 가져오는데 사용되는 react-query 훅 */
 import { useQuery } from '@tanstack/react-query';
@@ -66,19 +67,31 @@ type UserData = {
 // SampleTable 컴포넌트를 정의
 export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
+  const [params, setParams] = useState({ name: '', email: '', age: '' });
   const { rows, pageSize, pageIndex } = tableState;
+  const { sortBy, sortOrder } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
+
     useQuery<UserData>({
-      queryKey: ['users', pageIndex, pageSize],
-      queryFn: async () => {
-        const res = await fetch(
-          `/api/users?page=${pageIndex}&limit=${pageSize}&sort=createdAt&order=desc`
-        );
-        if (!res.ok) throw new Error('사용자 목록 로딩 실패');
-        return res.json();
-      },
+      queryKey: [
+        "users",
+        {
+          endpoint: 'users',
+          queryParams: {
+            page: pageIndex,
+            limit: pageSize,
+            name: params.name,
+            email: params.email,
+            age: params.age,
+            sort: sortBy,
+            order: sortOrder,
+          },
+        },
+      ],
       initialData: initialData || { rows: [], count: 0 },
     });
+
+
   useEffect(() => {
     initialData &&
       setTableState((prev) => ({
@@ -115,6 +128,16 @@ export const SampleTable = ({ initialData }: Props) => {
   const ERROR_MESSAGE = '데이터를 찾을 수 없습니다.';
   const NO_DATA_MESSAGE = '데이터가 없습니다. 데이터를 생성 해주세요.';
 
+  const handleSearch = (newParams: {
+    name: string;
+    email: string;
+    age: string;
+  }) => {
+    setParams(newParams);
+    setTableState((prev) => ({ ...prev, pageIndex: 0 }));
+    refetch();
+  };
+
   // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
   function renderDataStatusMessage(
     isFetching: boolean,
@@ -137,7 +160,12 @@ export const SampleTable = ({ initialData }: Props) => {
   if (statusMessage || data.rows.length === 0)
     return (
       <div className="mx-auto max-w-screen-2xl">
-        <FunctionToolbar />
+        {/* 상단 툴바 & 검색바 섹션  */}
+        <div className="flex flex-wrap items-start justify-between gap-6 px-4 py-2">
+          <UserSearchBar className="my-3 p-3" onSearch={handleSearch} />
+          <FunctionToolbar className="my-3 p-3" />
+        </div>
+
         <div className="h-[36vh] overflow-auto">
           <Table className="my-4" maxHeight="35vh">
             <SampleTableHeader table={table} />
@@ -160,7 +188,11 @@ export const SampleTable = ({ initialData }: Props) => {
     );
   return (
     <div className="mx-auto max-w-screen-2xl">
-      <FunctionToolbar />
+      {/* 상단 툴바 & 검색바 섹션  */}
+      <div className="flex flex-wrap items-start justify-between gap-6 px-4 py-2">
+        <UserSearchBar className="my-3 p-3" onSearch={handleSearch} />
+        <FunctionToolbar className="my-3 p-3" />
+      </div>
       <div className="h-[36vh] overflow-auto">
         <Table className="my-4" maxHeight="35vh">
           <SampleTableHeader table={table} />
@@ -175,22 +207,48 @@ SampleTable.displayName = 'SampleTable';
 
 // 테이블 헤더 부분을 렌더링하는 컴포넌트
 const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
+  const [tableState, setTableState] = useRecoilState(sampleTableState);
+  const { sortBy, sortOrder } = tableState;
+
+  // 정렬 핸들러 함수
+  const handleSort = (columnId: string) => {
+    if (sortBy === columnId) {
+      // 이미 정렬된 컬럼이라면 방향만 토글
+      const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      setTableState((prev) => ({ ...prev, sortOrder: newOrder }));
+    } else {
+      // 새 컬럼 클릭 시 정렬 기준 변경
+      setTableState((prev) => ({
+        ...prev,
+        sortBy: columnId as keyof User,
+        sortOrder: 'asc', // 초기 정렬 방향은 asc
+      }));
+    }
+  };
+
   return (
     <TableHeader className="sticky top-0 bg-gray-700 text-white dark:bg-slate-800">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => {
+            const columnId = header.column.id;
+            const isSortedColumn = sortBy === columnId;
+
             return (
               <TableHead
                 key={header.id}
-                className="text-center"
+                className="cursor-pointer select-none text-center"
                 colSpan={header.colSpan}
+                onClick={() => handleSort(columnId)}
               >
                 {header.isPlaceholder ? null : (
-                  <div>
+                  <div className="flex items-center justify-center gap-1">
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
+                    )}
+                    {isSortedColumn && (
+                      <span>{sortOrder === 'asc' ? '▲' : '▼'}</span>
                     )}
                   </div>
                 )}
@@ -254,7 +312,7 @@ export const TablePageController = () => {
     <div className="flex w-full items-center justify-between gap-2">
       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
       <div className="flex items-center gap-2">
-        <Button  disabled={pageIndex === 0} onClick={goToPrevGroup}>
+        <Button disabled={pageIndex === 0} onClick={goToPrevGroup}>
           <RxDoubleArrowLeft size={20} />
         </Button>
         <Button
@@ -283,7 +341,7 @@ export const TablePageController = () => {
         >
           <RxChevronRight size={20} />
         </Button>
-        <Button  disabled={pageIndex === pageCount - 1} onClick={goToNextGroup}>
+        <Button disabled={pageIndex === pageCount - 1} onClick={goToNextGroup}>
           <RxDoubleArrowRight size={20} />
         </Button>
       </div>

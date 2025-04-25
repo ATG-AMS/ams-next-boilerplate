@@ -3,6 +3,8 @@
 # Database
 *.db
 *.db-journal
+./prisma/dev.db-journal
+./prisma/dev.db
 
 # dependencies
 /node_modules
