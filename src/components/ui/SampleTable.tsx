@@ -50,6 +50,7 @@ import { defaultColumn } from '@/components/ui/SampleColumnDef';
 /** Recoil 상태 관리 훅과 정의한 atom */
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { fetchC } from '@/lib/utils';
 
 // Props와 UserData 타입을 정의
 type Props = {
@@ -66,29 +67,30 @@ type UserData = {
 // SampleTable 컴포넌트를 정의
 export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
-  const [params, setParams] = useState({name: '', email: '', age: ''});
+  const [params, setParams] = useState({ name: '', email: '', age: '' });
   const { rows, pageSize, pageIndex } = tableState;
   const { sortBy, sortOrder } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
-  useQuery<UserData>({
-    queryKey: [
-      {
-        endpoint: 'users',
-        queryParams: {
-          page: pageIndex,
-          limit: pageSize,
-          name: params.name,
-          email: params.email,
-          age: params.age,
-          // sort: 'createdAt',
-          // order: 'desc',
+
+    useQuery<UserData>({
+      queryKey: [
+        "users",
+        {
+          endpoint: 'users',
+          queryParams: {
+            page: pageIndex,
+            limit: pageSize,
+            name: params.name,
+            email: params.email,
+            age: params.age,
             sort: sortBy,
             order: sortOrder,
+          },
         },
-      },
-    ],
-    initialData: initialData || { rows: [], count: 0 },
-  });
+      ],
+      initialData: initialData || { rows: [], count: 0 },
+    });
+
 
   useEffect(() => {
     initialData &&
@@ -121,17 +123,20 @@ export const SampleTable = ({ initialData }: Props) => {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
-  const notice = '';
   const EMPTY_ROWS = 10;
   const LOADING_MESSAGE = '데이터를 불러오고 있습니다.';
   const ERROR_MESSAGE = '데이터를 찾을 수 없습니다.';
   const NO_DATA_MESSAGE = '데이터가 없습니다. 데이터를 생성 해주세요.';
 
-  const handleSearch = (newParams : {name: string; email: string; age: string }) => {
+  const handleSearch = (newParams: {
+    name: string;
+    email: string;
+    age: string;
+  }) => {
     setParams(newParams);
     setTableState((prev) => ({ ...prev, pageIndex: 0 }));
     refetch();
-  }
+  };
 
   // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
   function renderDataStatusMessage(
@@ -155,11 +160,10 @@ export const SampleTable = ({ initialData }: Props) => {
   if (statusMessage || data.rows.length === 0)
     return (
       <div className="mx-auto max-w-screen-2xl">
-
         {/* 상단 툴바 & 검색바 섹션  */}
-        <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
-          <UserSearchBar className="p-3 my-3" onSearch={handleSearch} />
-          <FunctionToolbar className="p-3 my-3" />
+        <div className="flex flex-wrap items-start justify-between gap-6 px-4 py-2">
+          <UserSearchBar className="my-3 p-3" onSearch={handleSearch} />
+          <FunctionToolbar className="my-3 p-3" />
         </div>
 
         <div className="h-[36vh] overflow-auto">
@@ -185,9 +189,9 @@ export const SampleTable = ({ initialData }: Props) => {
   return (
     <div className="mx-auto max-w-screen-2xl">
       {/* 상단 툴바 & 검색바 섹션  */}
-      <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
-        <UserSearchBar className="p-3 my-3" onSearch={handleSearch} />
-        <FunctionToolbar className="p-3 my-3" />
+      <div className="flex flex-wrap items-start justify-between gap-6 px-4 py-2">
+        <UserSearchBar className="my-3 p-3" onSearch={handleSearch} />
+        <FunctionToolbar className="my-3 p-3" />
       </div>
       <div className="h-[36vh] overflow-auto">
         <Table className="my-4" maxHeight="35vh">
@@ -233,7 +237,7 @@ const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
             return (
               <TableHead
                 key={header.id}
-                className="text-center cursor-pointer select-none"
+                className="cursor-pointer select-none text-center"
                 colSpan={header.colSpan}
                 onClick={() => handleSort(columnId)}
               >
@@ -257,7 +261,6 @@ const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
   );
 };
 
-
 // 테이블 바디 부분을 렌더링하는 컴포넌트
 const SampleTableBody = ({ table }: { table: TableType<User> }) => {
   return (
@@ -279,55 +282,70 @@ const SampleTableBody = ({ table }: { table: TableType<User> }) => {
   );
 };
 
-// 테이블의 페이지네이션을 제어하는 컴포넌트
+//pagination 관련 컴포넌트트
 export const TablePageController = () => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const { count, pageIndex, pageSize, pageCount } = tableState;
+
+  // 현재 페이지 그룹 기준 계산 (5개씩 표시)
+  const groupSize = 5;
+  const currentGroup = Math.floor(pageIndex / groupSize);
+  const startPage = currentGroup * groupSize;
+  const endPage = Math.min(startPage + groupSize, pageCount);
+  const handlePageClick = (index: number) => {
+    setTableState((prev) => ({ ...prev, pageIndex: index }));
+  };
+
+  const goToPrevGroup = () => {
+    if (startPage > 0) handlePageClick(startPage - groupSize);
+    else if (startPage == 0) {
+      handlePageClick(0);
+    }
+  };
+
+  const goToNextGroup = () => {
+    if (endPage < pageCount) handlePageClick(endPage);
+    else handlePageClick(pageCount - 1);
+  };
+
   return (
     <div className="flex w-full items-center justify-between gap-2">
       <div>총 {count.toLocaleString('ko-KR')} 항목</div>
-      <div className="flex gap-2">
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === 0}
-          onClick={() => setTableState((prev) => ({ ...prev, pageIndex: 0 }))}
-        >
+      <div className="flex items-center gap-2">
+        <Button disabled={pageIndex === 0} onClick={goToPrevGroup}>
           <RxDoubleArrowLeft size={20} />
         </Button>
         <Button
-          className="rounded border p-1 shadow-none"
           disabled={pageIndex === 0}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageIndex - 1 }))
-          }
+          onClick={() => handlePageClick(pageIndex - 1)}
         >
           <RxChevronLeft size={20} />
         </Button>
-        <span className="flex items-center gap-1">
-          <p>
-            <strong>{pageCount === 0 ? 1 : pageCount}</strong> 페이지 중{' '}
-            <strong>{pageIndex + 1}</strong> 페이지
-          </p>
-        </span>
+
+        {Array.from({ length: endPage - startPage }, (_, i) => {
+          const page = startPage + i;
+          return (
+            <Button
+              key={page}
+              className={pageIndex === page ? 'bg-blue-500 text-white' : ''}
+              onClick={() => handlePageClick(page)}
+            >
+              {page + 1}
+            </Button>
+          );
+        })}
+
         <Button
-          className="rounded border p-1 shadow-none"
           disabled={pageIndex === pageCount - 1}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageIndex + 1 }))
-          }
+          onClick={() => handlePageClick(pageIndex + 1)}
         >
           <RxChevronRight size={20} />
         </Button>
-        <Button
-          className="rounded border p-1 shadow-none"
-          disabled={pageIndex === pageCount - 1}
-          onClick={() =>
-            setTableState((prev) => ({ ...prev, pageIndex: pageCount - 1 }))
-          }
-        >
+        <Button disabled={pageIndex === pageCount - 1} onClick={goToNextGroup}>
           <RxDoubleArrowRight size={20} />
         </Button>
       </div>
+
       <Select
         defaultValue={pageSize.toString()}
         onValueChange={(e) => {
@@ -352,4 +370,3 @@ export const TablePageController = () => {
     </div>
   );
 };
-TablePageController.displayName = 'TablePageController';
