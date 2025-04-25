@@ -1,7 +1,7 @@
 'use client'; // React Client 컴포넌트 임을 명시
 
 /** 필수 React 훅과 아이콘 라이브러리 */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   RxDoubleArrowLeft,
   RxDoubleArrowRight,
@@ -27,6 +27,7 @@ import {
   SelectItem,
 } from '@/components/atoms/Select';
 import { FunctionToolbar } from '@/components/ui/FunctionButtons';
+import { UserSearchBar } from '@/app/search-user/_component/UserSearchBar';
 
 /** 데이터를 가져오는데 사용되는 react-query 훅 */
 import { useQuery } from '@tanstack/react-query';
@@ -65,25 +66,30 @@ type UserData = {
 // SampleTable 컴포넌트를 정의
 export const SampleTable = ({ initialData }: Props) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
+  const [params, setParams] = useState({name: '', email: '', age: ''});
   const { rows, pageSize, pageIndex } = tableState;
   const { sortBy, sortOrder } = tableState;
   const { data, isError, isLoading, isFetching, isFetched, refetch } =
-    useQuery<UserData>({
-      queryKey: [
-        {
-          endpoint: 'users',
-          queryParams: {
-            page: pageIndex,
-            limit: pageSize,
-            // sort: 'createdAt',
-            // order: 'desc',
+  useQuery<UserData>({
+    queryKey: [
+      {
+        endpoint: 'users',
+        queryParams: {
+          page: pageIndex,
+          limit: pageSize,
+          name: params.name,
+          email: params.email,
+          age: params.age,
+          // sort: 'createdAt',
+          // order: 'desc',
             sort: sortBy,
             order: sortOrder,
-          },
         },
-      ],
-      initialData: initialData || { rows: [], count: 0 },
-    });
+      },
+    ],
+    initialData: initialData || { rows: [], count: 0 },
+  });
+
   useEffect(() => {
     initialData &&
       setTableState((prev) => ({
@@ -121,6 +127,12 @@ export const SampleTable = ({ initialData }: Props) => {
   const ERROR_MESSAGE = '데이터를 찾을 수 없습니다.';
   const NO_DATA_MESSAGE = '데이터가 없습니다. 데이터를 생성 해주세요.';
 
+  const handleSearch = (newParams : {name: string; email: string; age: string }) => {
+    setParams(newParams);
+    setTableState((prev) => ({ ...prev, pageIndex: 0 }));
+    refetch();
+  }
+
   // 데이터의 로딩, 에러, 빈 상태에 따라 메시지를 렌더링하는 함수
   function renderDataStatusMessage(
     isFetching: boolean,
@@ -143,7 +155,13 @@ export const SampleTable = ({ initialData }: Props) => {
   if (statusMessage || data.rows.length === 0)
     return (
       <div className="mx-auto max-w-screen-2xl">
-        <FunctionToolbar />
+
+        {/* 상단 툴바 & 검색바 섹션  */}
+        <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
+          <UserSearchBar className="p-3 my-3" onSearch={handleSearch} />
+          <FunctionToolbar className="p-3 my-3" />
+        </div>
+
         <div className="h-[36vh] overflow-auto">
           <Table className="my-4" maxHeight="35vh">
             <SampleTableHeader table={table} />
@@ -166,7 +184,11 @@ export const SampleTable = ({ initialData }: Props) => {
     );
   return (
     <div className="mx-auto max-w-screen-2xl">
-      <FunctionToolbar />
+      {/* 상단 툴바 & 검색바 섹션  */}
+      <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
+        <UserSearchBar className="p-3 my-3" onSearch={handleSearch} />
+        <FunctionToolbar className="p-3 my-3" />
+      </div>
       <div className="h-[36vh] overflow-auto">
         <Table className="my-4" maxHeight="35vh">
           <SampleTableHeader table={table} />

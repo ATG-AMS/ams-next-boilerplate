@@ -72,13 +72,10 @@ export async function GET(request: Request) {
       orderBy: sort ? { [sort]: order || 'asc' } : undefined,
       where: {
         ...(email && {
-          email: {
-            contains: email,
-            mode: 'insensitive',
-          } as Prisma.StringFilter,
+          email: { contains: email.toLowerCase()} as Prisma.StringFilter,
         }),
-        ...(name && {
-          name: { contains: name, mode: 'insensitive' } as Prisma.StringFilter,
+        ...(name && { 
+          name: { contains: name.toLowerCase()} as Prisma.StringFilter,
         }),
         ...(age && { age: Number(age) }),
       },
@@ -88,13 +85,10 @@ export async function GET(request: Request) {
     const count = await prisma.user.count({
       where: {
         ...(email && {
-          email: {
-            contains: email,
-            mode: 'insensitive',
-          } as Prisma.StringFilter,
+          email: { contains: email.toLowerCase()} as Prisma.StringFilter,
         }),
-        ...(name && {
-          name: { contains: name, mode: 'insensitive' } as Prisma.StringFilter,
+        ...(name && { 
+          name: { contains: name.toLowerCase()} as Prisma.StringFilter,
         }),
         ...(age && { age: Number(age) }),
       },
