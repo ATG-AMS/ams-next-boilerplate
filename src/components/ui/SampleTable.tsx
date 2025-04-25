@@ -156,7 +156,6 @@ export const SampleTable = ({ initialData }: Props) => {
 
         {/* 상단 툴바 & 검색바 섹션  */}
         <div className="flex flex-wrap justify-between items-start gap-6 px-4 py-2">
-          {/* <UserSearchBar className="bg-white rounded-xl shadow-sm p-3 my-3"/> */}
           <UserSearchBar className="bg-white rounded-xl shadow-sm p-3 my-3" onSearch={handleSearch} />
           <FunctionToolbar className="bg-white rounded-xl shadow-sm p-3 my-3" />
         </div>

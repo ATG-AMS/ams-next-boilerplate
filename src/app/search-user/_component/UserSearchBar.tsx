@@ -15,20 +15,17 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
   const [email, setEmail] = useState('');
   const [age, setAge] = useState('');
 
-  const handleSubmit = (e: React.FormEvent, reset: boolean = false) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (reset) {
-      setName('');
-      setEmail('');
-      setAge('');
-    }
-
-    const params = reset
-      ? { name: '', email: '', age: '' }
-      : { name: name, email: email, age: age }
-
-    onSearch(params);
+    onSearch({ name, email, age });
+  };
+  
+  const handleReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    setName('');
+    setEmail('');
+    setAge('');
+    onSearch({ name: '', email: '', age: '' });
   };
 
   return (
@@ -80,7 +77,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
           type="button"
           className="rounded-lg"
           onClick={(e) => {
-            handleSubmit(e as React.FormEvent, true);
+            handleReset(e as React.FormEvent);
           }}
         >
           검색 초기화
