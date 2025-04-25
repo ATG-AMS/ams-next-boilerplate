@@ -3,10 +3,10 @@ CREATE TABLE "User" (
     "idx" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "age" INTEGER,
-    "visits" INTEGER,
-    "progress" INTEGER,
-    "status" TEXT,
+    "age" INTEGER NOT NULL,
+    "visits" INTEGER NOT NULL,
+    "progress" INTEGER NOT NULL,
+    "status" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
