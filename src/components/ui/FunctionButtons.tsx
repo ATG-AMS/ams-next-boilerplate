@@ -12,14 +12,13 @@ import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
 import { SingleUserDialog } from './single-user-dialog';
-import { swalToast } from '@/lib/swal';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const { refetch } = tableState;
-  const { mutate, status } = useMutation({ mutationFn: fetchC });
+  const { mutateAsync, status } = useMutation({ mutationFn: fetchC });
 
   // 첫 번째 페이지로 되돌리는 함수
   const resetToFirstPage = () => {
@@ -27,7 +26,7 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
   };
 
   // 단일 사용자 수동 추가 폼 제출 핸들러
-  const onSingleUserFormSubmit = (data: any) => {
+  const onSingleUserFormSubmit = async (data: any) => {
     const transformedData = {
       ...data,
       age: data.age ? Number(data.age) : undefined,
@@ -35,44 +34,11 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
       progress: data.progress ? Number(data.progress) : undefined,
     };
 
-    mutate(
-      {
-        endpoint: 'users',
-        method: 'POST',
-        body: transformedData,
-      },
-      {
-        onSuccess: () => {
-          setShowAddDialog(false);
-          refetch();
-          resetToFirstPage();
-          swalToast(
-            '사용자 추가 성공',
-            '사용자가 성공적으로 추가되었습니다.',
-            'success'
-          );
-        },
-        onError: (error: any) => {
-          console.error('사용자 추가 중 에러 발생:', error.response);
-          // HTTP 409 Conflict (이메일 중복)
-          if (error?.status === 409) {
-            swalToast(
-              '사용자 추가 실패',
-              '이미 해당 이메일로 가입된 사용자가 존재합니다.',
-              'error',
-              5000
-            );
-          } else {
-            swalToast(
-              '사용자 추가 실패',
-              '사용자 추가에 실패했습니다. 다시 시도해주세요.',
-              'error',
-              5000
-            );
-          }
-        },
-      }
-    );
+    return mutateAsync({
+      endpoint: 'users',
+      method: 'POST',
+      body: transformedData,
+    });
   };
 
   return (

@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/atoms/Dialog';
+import { swalToast } from '@/lib/swal';
 
 // #1. 이 파일 내에서 사용할 타입 및 인터페이스 정의
 interface UserDialogProps {
@@ -87,6 +88,7 @@ export const SingleUserDialog = ({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<User>({
     defaultValues: user || {
@@ -99,6 +101,31 @@ export const SingleUserDialog = ({
     },
     ...formOptions,
   });
+
+  const handleFormSubmit = async (data: User) => {
+    try {
+      await onSubmit(data);
+      setIsOpen(false);
+      swalToast(
+        '사용자 추가 성공',
+        '사용자가 성공적으로 추가되었습니다.',
+        'success'
+      );
+    } catch (error: any) {
+      if (error.status === 409) {
+        setError('email', {
+          type: 'server',
+          message: '이미 해당 이메일로 가입된 사용자가 존재합니다.',
+        });
+      } else {
+        swalToast(
+          '사용자 추가 실패',
+          '사용자 추가에 실패했습니다. 다시 시도해주세요.',
+          'error'
+        );
+      }
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -116,7 +143,7 @@ export const SingleUserDialog = ({
               : '아래 정보 중 수정 가능한 것들을 수정할 수 있습니다.'}
           </DialogDescription>
         </DialogHeader>
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-4" onSubmit={handleSubmit(handleFormSubmit)}>
           <div>
             <Label htmlFor="name">
               이름 <span className="text-orange-400">*</span>
