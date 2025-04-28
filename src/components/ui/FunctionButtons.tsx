@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
 import { SingleUserDialog } from './single-user-dialog';
-import { swalDialog, swalToast } from '@/lib/swal';
+import { swalToast } from '@/lib/swal';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
@@ -52,14 +52,24 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
             'success'
           );
         },
-        onError: (error) => {
-          console.error('사용자 추가 중 에러 발생:', error);
-          swalToast(
-            '사용자 추가 실패',
-            '사용자 추가에 실패했습니다. 이메일 중복 여부 등을 확인한 후 다시 시도해주세요.',
-            'error',
-            5000
-          );
+        onError: (error: any) => {
+          console.error('사용자 추가 중 에러 발생:', error.response);
+          // HTTP 409 Conflict (이메일 중복)
+          if (error?.status === 409) {
+            swalToast(
+              '사용자 추가 실패',
+              '이미 해당 이메일로 가입된 사용자가 존재합니다.',
+              'error',
+              5000
+            );
+          } else {
+            swalToast(
+              '사용자 추가 실패',
+              '사용자 추가에 실패했습니다. 다시 시도해주세요.',
+              'error',
+              5000
+            );
+          }
         },
       }
     );

@@ -1,9 +1,9 @@
-import localFont from "next/font/local";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import localFont from 'next/font/local';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export const SUIT = localFont({
-  src: "../../public/fonts/SUIT/SUIT-Variable.woff2",
+  src: '../../public/fonts/SUIT/SUIT-Variable.woff2',
 });
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 
 interface ServerSideFetchOptions {
   endpoint: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   queryParams?: Record<string, string | number>;
   header?: Record<string, string>;
   body?: any;
@@ -28,14 +28,14 @@ export const fetchS = async (options: ServerSideFetchOptions) => {
   // const headers: Record<string, string> =
   //   options.header || createHeaders(token);
 
-  if (options.method === "POST" || options.method === "PUT") {
-    if (!headers["Content-Type"]) {
-      headers["Content-Type"] = "application/json";
+  if (options.method === 'POST' || options.method === 'PUT') {
+    if (!headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
     }
   }
 
   const response = await fetch(url.toString(), {
-    method: options.method || "GET",
+    method: options.method || 'GET',
     headers: headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
@@ -43,7 +43,7 @@ export const fetchS = async (options: ServerSideFetchOptions) => {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(
-      `API Error: ${response.statusText} - ${errorData.message || ""}`,
+      `API Error: ${response.statusText} - ${errorData.message || ''}`
     );
   }
 
@@ -57,24 +57,24 @@ export function formatDate(input: string | number | Date): string {
   } else {
     date = input;
   }
-  return date.toLocaleDateString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
+  return date.toLocaleDateString('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
   });
 }
 
 export interface ClientSideFetchOptions {
   endpoint: string;
   // token: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   queryParams?: Record<string, string | number>;
   header?: Record<string, string>;
   body?: any;
 }
 
 export const fetchC = async (options: ClientSideFetchOptions) => {
-  console.log("🚀 ~ fetchC ~ ClientSide ~ options:", options);
+  console.log('🚀 ~ fetchC ~ ClientSide ~ options:', options);
   // if (!token) {
   //   throw new Error("Token is not provided");
   // }
@@ -91,24 +91,27 @@ export const fetchC = async (options: ClientSideFetchOptions) => {
   //   options.header || createHeaders(token);
 
   // POST, PUT 메소드일 경우 Content-Type을 지정한다.
-  if (options.method === "POST" || options.method === "PUT") {
+  if (options.method === 'POST' || options.method === 'PUT') {
     // Content-Type이 없으면 기본값을 사용한다.
-    if (!headers["Content-Type"]) {
-      headers["Content-Type"] = "application/json";
+    if (!headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
     }
   }
 
   const response = await fetch(url.toString(), {
-    method: options.method || "GET",
+    method: options.method || 'GET',
     headers: headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      `API Error: ${response.statusText} - ${errorData.message || ""}`,
-    );
+    const errorData = await response.json().catch(() => ({})); // JSON 파싱 실패 시 빈 객체 반환
+    throw {
+      status: response.status,
+      statusText: response.statusText,
+      message: errorData.message || 'Unknown error occurred',
+      data: errorData,
+    };
   }
 
   return await response.json();
@@ -116,29 +119,29 @@ export const fetchC = async (options: ClientSideFetchOptions) => {
 
 const createQueryParams = (
   urlObj: URL,
-  queryParams: Record<string, string | number>,
+  queryParams: Record<string, string | number>
 ) => {
   Object.keys(queryParams).forEach((key) =>
-    urlObj.searchParams.append(key, String(queryParams![key])),
+    urlObj.searchParams.append(key, String(queryParams![key]))
   );
 };
 
 const createHeaders = (token: string) => ({
-  "X-Authorization": `Bearer ${token}`,
-  "X-Requested-With": "XMLHttpRequest",
+  'X-Authorization': `Bearer ${token}`,
+  'X-Requested-With': 'XMLHttpRequest',
 });
 
 export type RequestParams = {
   endpoint?: string;
   queryParams?: Record<string, string | number>;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: any;
   headers?: Record<string, string>;
 };
 
 // Partial<RequestParams> : RequestParams의 모든 속성을 선택적으로 만듬
 export function parseRequestParams(
-  arr: Array<Partial<RequestParams>>,
+  arr: Array<Partial<RequestParams>>
 ): RequestParams {
   const result: RequestParams = {};
 
