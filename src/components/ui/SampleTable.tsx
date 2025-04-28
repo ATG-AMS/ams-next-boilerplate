@@ -143,7 +143,7 @@ export const SampleTable = ({ initialData }: Props) => {
       <div className="mx-auto max-w-screen-2xl">
         <FunctionToolbar />
         <div className="h-[36vh] overflow-auto">
-          <Table className="my-4" maxHeight="35vh">
+          <Table className="my-4" style={{ tableLayout: 'fixed', width: '100%' }}>
             <SampleTableHeader table={table} />
             <TableBody className="h-96 overflow-y-auto">
               {[...Array(EMPTY_ROWS)].map((_, index) => (
@@ -166,7 +166,7 @@ export const SampleTable = ({ initialData }: Props) => {
     <div className="mx-auto max-w-screen-2xl">
       <FunctionToolbar />
       <div className="h-[36vh] overflow-auto">
-        <Table className="my-4" maxHeight="35vh">
+        <Table className="my-4" style={{ tableLayout: 'fixed', width: '100%' }}>
           <SampleTableHeader table={table} />
           <SampleTableBody table={table} />
         </Table>
@@ -217,9 +217,9 @@ const SampleTableHeader = ({ table }: { table: TableType<User> }) => {
                     header.column.columnDef.header,
                     header.getContext()
                   )}
-                  {isSortedColumn && (
-                    <span>{sortOrder === 'asc' ? '▲' : '▼'}</span>
-                  )}
+                    <span className="text-xs">
+                      {isSortedColumn ? (sortOrder === 'asc' ? '▲' : '▼') : '⇅'}
+                    </span>
                   </div>
                 )}
               </TableHead>
@@ -237,7 +237,8 @@ const SampleTableBody = ({ table }: { table: TableType<User> }) => {
     <TableBody className="h-96 overflow-y-auto">
       {table.getRowModel().rows.map((row) => {
         return (
-          <TableRow key={row.id}>
+          // <TableRow key={row.id}>
+          <TableRow key={row.id} className="min-h-[50px]">
             {row.getVisibleCells().map((cell) => {
               return (
                 <TableCell key={cell.id}>
