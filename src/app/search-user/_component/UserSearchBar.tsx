@@ -30,17 +30,17 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
 
   return (
     <form onSubmit={handleSubmit}
-      className={cn("flex items-center justify-between gap-8 flex-wrap", className)}>
+      className={cn("flex items-center justify-between gap-2 flex-wrap", className)}>
 
       {/* 검색 필드 섹션 */}
-      <div className="flex gap-6 items-center flex-wrap">
+      <div className="flex gap-5 items-center flex-wrap">
         <div className="flex items-center gap-2">
           <Label htmlFor="name">이름</Label>
           <Input
             id="name"
             value={name}
             placeholder="이름 입력"
-            className="w-[140px] bg-gray-200 shadow-2xl dark:text-black"
+            className="w-[120px] bg-gray-200 shadow-2xl dark:text-black"
             onChange={(e) => { setName(e.target.value); }}
           />
         </div>
@@ -51,7 +51,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
             id="email"
             value={email}
             placeholder="이메일 입력"
-            className="w-[250px] bg-gray-200 shadow-2xl dark:text-black"
+            className="w-[200px] bg-gray-200 shadow-2xl dark:text-black"
             onChange={(e) => { setEmail(e.target.value); }}
           />
         </div>
@@ -70,7 +70,7 @@ export const UserSearchBar = ({ className, onSearch }: Props) => {
       </div>
 
       {/* 버튼 섹션 */}
-      <div className="flex gap-3">
+      <div className="flex">
         <Button variant="ghost" type="submit" className="rounded-lg">검색</Button>
         <Button
           variant="ghost"
