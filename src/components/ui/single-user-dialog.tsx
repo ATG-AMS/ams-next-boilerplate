@@ -89,6 +89,7 @@ export const SingleUserDialog = ({
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = useForm<User>({
     defaultValues: user || {
@@ -106,6 +107,7 @@ export const SingleUserDialog = ({
     try {
       await onSubmit(data);
       setIsOpen(false);
+      reset();
       swalToast(
         '사용자 추가 성공',
         '사용자가 성공적으로 추가되었습니다.',
@@ -223,7 +225,13 @@ export const SingleUserDialog = ({
           </div>
           <DialogFooter>
             <Button type="submit">사용자 {isCreate ? '추가' : '수정'}</Button>
-            <Button type="button" onClick={() => setIsOpen(false)}>
+            <Button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                reset();
+              }}
+            >
               취소
             </Button>
           </DialogFooter>
