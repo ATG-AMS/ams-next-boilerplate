@@ -1,16 +1,20 @@
 'use client'; // React Client 컴포넌트 임을 명시
 
+import React, { useEffect, useState } from 'react';
+import { Resolver, useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
+
 import { Button } from '@/components/atoms/Button';
 import { cn, fetchC } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { Person } from '@/lib/makeData';
 import { makeData } from '@/lib/makeData';
 import { Input } from '@/components/atoms/Input';
 import { Label } from '@/components/atoms/Label';
-import { useForm } from 'react-hook-form';
-import { useRecoilState } from 'recoil';
 import { sampleTableState } from '@/components/store/SampleTableState';
+
+import { manualAddUserSchema, type ManualAddUserFormData } from '../../app/hsr/_schema/manualAddUserSchema';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
@@ -30,6 +34,7 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
         syncState={resetToFirstPage}
       />
       <ResetButton refetch={refetch} syncState={resetToFirstPage} />
+      <ManualAddData refetch={refetch} syncState={resetToFirstPage} />
     </div>
   );
 };
@@ -123,5 +128,206 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
     >
       초기화
     </Button>
+  );
+};
+
+const checkEmail = async (email: string) => {
+  const response = await fetch('/api/check-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error('이메일 중복 확인 실패');
+  }
+
+  return response.json();
+};
+
+export const ManualAddData = ({ className, refetch, syncState }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEmailChecked, setIsEmailChecked] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    getValues,
+    formState: { errors },
+  } = useForm<ManualAddUserFormData>({
+    resolver: zodResolver(manualAddUserSchema) as Resolver<ManualAddUserFormData>,
+    mode: 'onChange',
+    shouldFocusError: false,
+  });
+
+  const resetFormState = () => {
+    setIsOpen(false);
+    reset();
+    setIsEmailChecked(false);
+  };
+
+  const postUserData = async (data: ManualAddUserFormData) => {
+    const newData = {
+      ...data,
+      name: data.name.replace(/\s+/g, ''),
+      age: data.age ?? 0,
+      visits: data.visits ?? 0,
+      progress: data.progress ?? 0,
+      status: data.status ?? '',
+    };
+
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newData),
+    });
+
+    if (!response.ok) {
+      throw new Error('데이터 직접 추가 실패');
+    }
+
+    refetch();
+    return response.json();
+  };
+
+  const handleCheckEmail = async (email: string) => {
+    try {
+      const { isAvailable } = await checkEmail(email);
+
+      if (!isAvailable) {
+        setError('email', {
+          type: 'manual',
+          message: '이미 등록된 이메일입니다.',
+        });
+        setIsEmailChecked(false);
+      } else {
+        clearErrors('email');
+        setIsEmailChecked(true);
+      }
+    } catch (error) {
+      setError('email', {
+        type: 'manual',
+        message: '이메일 중복 확인 중 오류가 발생했어요.',
+      });
+      setIsEmailChecked(false);
+    }
+  };
+
+  const onSubmit = (data: ManualAddUserFormData) => {
+    if (!isEmailChecked || errors.email) {
+      setError('email', {
+        type: 'manual',
+        message: '이메일 인증 또는 다른 이메일을 사용해주세요.',
+      });
+      return;
+    }
+
+    postUserData(data);
+    resetFormState();
+  };
+
+  return (
+    <>
+      <Button className={cn('text-lg shadow-none')} onClick={() => setIsOpen(true)}>
+        + 직접 입력
+      </Button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="rounded-xl bg-white p-7 shadow-xl w-[30%]">
+            <h2 className="text-xl font-bold mb-4">데이터 직접 입력</h2>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  이메일 <span className="text-orange-500 font-bold">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    placeholder='예) abc@email.com'
+                    {...register('email')}
+                    readOnly={isEmailChecked && !errors.email}
+                    className={cn(
+                      'w-full rounded border px-3 py-3 text-lg',
+                      errors.email && 'border-red-500',
+                      isEmailChecked && !errors.email && 'bg-gray-200 cursor-not-allowed'
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleCheckEmail(getValues('email'))}
+                    className="h-[55px] px-3 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                  >
+                    확인
+                  </Button>
+                </div>
+                {errors.email ? (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                ) : isEmailChecked && (
+                  <p className="text-green-600 text-sm mt-1">사용 가능한 이메일입니다.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  이름 <span className="text-orange-500 font-bold">*</span>
+                </label>
+                <input
+                  placeholder='예) 홍길동'
+                  {...register('name')}
+                  className={cn(
+                    'w-full rounded border px-3 py-3 text-lg',
+                    errors.name && 'border-red-500'
+                  )}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">나이</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    placeholder="예) 23"
+                    {...register('age', {
+                      setValueAs: (value) => (value === '' ? undefined : Number(value)),
+                    })}
+                    className={cn(
+                      'w-24 rounded border px-3 py-2 text-lg',
+                      errors.age && 'border-red-500'
+                    )}
+                  />
+                  <span className="text-lg text-gray-700">세</span>
+                </div>
+                {errors.age && (
+                  <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  onClick={resetFormState}
+                  className="border px-4 py-2 rounded hover:bg-gray-100"
+                >
+                  취소
+                </Button>
+                <Button
+                  type="submit"
+                  className="border px-4 py-2 rounded hover:bg-gray-100"
+                >
+                  추가
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
