@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 type Props = {
   className?: string;
-  onSearch: (filter: { name: string; email: string; age: string; }) => void;
+  onSearch: (newParams: { name: string; email: string; age: string }) => void;
 };
 
 export const UserSearchBar = ({ className, onSearch }: Props) => {

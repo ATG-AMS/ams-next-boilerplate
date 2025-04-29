@@ -189,7 +189,6 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
       throw new Error('데이터 직접 추가 실패');
     }
 
-    refetch();
     return response.json();
   };
 
@@ -216,7 +215,7 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
     }
   };
 
-  const onSubmit = (data: ManualAddUserFormData) => {
+  const onSubmit = async (data: ManualAddUserFormData) => {
     if (!isEmailChecked || errors.email) {
       setError('email', {
         type: 'manual',
@@ -224,9 +223,10 @@ export const ManualAddData = ({ className, refetch, syncState }: Props) => {
       });
       return;
     }
-
-    postUserData(data);
+    await postUserData(data);
     resetFormState();
+    refetch();
+    syncState();
   };
 
   return (
