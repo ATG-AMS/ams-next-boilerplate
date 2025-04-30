@@ -25,6 +25,7 @@ interface UserDialogProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: (data: User) => void;
+  isFilter: boolean;
 }
 interface User {
   idx?: number;
@@ -84,6 +85,7 @@ export const SingleUserDialog = ({
   isOpen,
   setIsOpen,
   onSubmit,
+  isFilter,
 }: UserDialogProps) => {
   const {
     register,
@@ -132,7 +134,7 @@ export const SingleUserDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)}>
+        <Button className='text-lg shadow-none' onClick={() => setIsOpen(true)} disabled={isFilter}>
           {isCreate ? '사용자 추가' : '사용자 수정'}
         </Button>
       </DialogTrigger>
