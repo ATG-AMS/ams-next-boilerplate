@@ -13,6 +13,12 @@ export interface ISampleTableState {
   sortBy: keyof User; // 정렬 기준 컬럼 (예: name, email, createdAt 등)
   sortOrder: 'asc' | 'desc'; // 오름차순 또는 내림차순
   refetch: () => void; // 데이터를 다시 가져오기 위한 함수
+  searchParams: {
+    name: string;
+    email: string;
+    age: string;
+  };
+  isFilter: boolean;
 }
 
 // 위에서 정의한 인터페이스를 기반으로 Recoil 상태(atom)를 생성
@@ -28,5 +34,11 @@ export const sampleTableState = atom<ISampleTableState>({
     sortBy: 'createdAt',
     sortOrder: 'desc',
     refetch: () => null,
+    searchParams: {
+      name: '',
+      email: '',
+      age: '',
+    },
+    isFilter: false
   },
 });

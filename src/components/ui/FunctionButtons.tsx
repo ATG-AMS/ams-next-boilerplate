@@ -1,23 +1,25 @@
 'use client'; // React Client 컴포넌트 임을 명시
 
-import { Button } from '@/components/atoms/Button';
-import { cn, fetchC } from '@/lib/utils';
-import { useMutation } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import type { Person } from '@/lib/makeData';
-import { makeData } from '@/lib/makeData';
+import { useRecoilState, useResetRecoilState  } from 'recoil';
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+
 import { Input } from '@/components/atoms/Input';
 import { Label } from '@/components/atoms/Label';
-import { useForm } from 'react-hook-form';
-import { useRecoilState } from 'recoil';
+import { Button } from '@/components/atoms/Button';
 import { sampleTableState } from '@/components/store/SampleTableState';
+import { inputValueState } from '@/components/store/InputValueState';
+import { cn, fetchC } from '@/lib/utils';
+import type { Person } from '@/lib/makeData';
+import { makeData } from '@/lib/makeData';
 import { SingleUserDialog } from './single-user-dialog';
 
 // 도구 툴바 컴포넌트. 데이터 생성 및 초기화 버튼을 포함
 export const FunctionToolbar = ({ className }: { className?: string }) => {
   const [tableState, setTableState] = useRecoilState(sampleTableState);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const { refetch } = tableState;
+  const { refetch, isFilter } = tableState;
   const { mutateAsync, status } = useMutation({ mutationFn: fetchC });
 
   // 첫 번째 페이지로 되돌리는 함수
@@ -42,19 +44,29 @@ export const FunctionToolbar = ({ className }: { className?: string }) => {
   };
 
   return (
-    <div className={cn('flex justify-end', className)}>
+    <div className={cn('flex flex-col ', className)}>
+      <div className='flex justify-end items-center gap-2'>
       <GenerateData
         className="border-r border-gray-400"
         refetch={refetch}
         syncState={resetToFirstPage}
+        isFilter={isFilter}
       />
       <SingleUserDialog
         isCreate={true}
         isOpen={showAddDialog}
         setIsOpen={setShowAddDialog}
         onSubmit={onSingleUserFormSubmit}
+        isFilter={isFilter}
       />
       <ResetButton refetch={refetch} syncState={resetToFirstPage} />
+      </div>
+      
+      {isFilter && (
+        <div className="text-sm text-blue-500 mt-1">
+          *데이터를 생성하려면, 먼저 '검색 초기화' 버튼을 클릭해 주세요.
+        </div>
+      )}
     </div>
   );
 };
@@ -65,10 +77,16 @@ type Props = {
   refetch: () => void;
   syncState: () => void;
   resetSize?: () => void;
+  isFilter?: boolean;
+  searchParams?: {
+    name: string;
+    email: string;
+    age: string;
+  };
 };
 
 // 데이터를 생성하는 컴포넌트
-export const GenerateData = ({ className, refetch, syncState }: Props) => {
+export const GenerateData = ({ className, refetch, syncState, isFilter }: Props) => {
   const { register, handleSubmit } = useForm();
   const { mutate, status } = useMutation({ mutationFn: fetchC });
 
@@ -115,6 +133,7 @@ export const GenerateData = ({ className, refetch, syncState }: Props) => {
       <Button
         className="text-lg shadow-none"
         onClick={handleSubmit(handleGenerateData)}
+        disabled={isFilter}
       >
         생성
       </Button>
@@ -124,6 +143,9 @@ export const GenerateData = ({ className, refetch, syncState }: Props) => {
 
 // 데이터를 초기화하는 버튼 컴포넌트
 export const ResetButton = ({ className, refetch, syncState }: Props) => {
+  const resetSearchParams = useResetRecoilState(sampleTableState);
+  const resetInputValues = useResetRecoilState(inputValueState);
+
   const { mutate } = useMutation({
     mutationFn: fetchC,
     onSuccess: () => {
@@ -139,8 +161,11 @@ export const ResetButton = ({ className, refetch, syncState }: Props) => {
       method: 'DELETE',
       body: { idx: 'reset-data' },
     });
-  };
 
+    resetSearchParams();
+    resetInputValues();
+  };
+ 
   return (
     <Button
       className={cn('text-lg shadow-none', className)}
